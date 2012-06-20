@@ -93,6 +93,14 @@ body {
   color:#444;
 }
 
+/* Feedback Activity Graph */
+.dot-feedback-activity {
+  position:absolute;
+  z-index:1;
+  top:-10px;
+}
+
+
 /* Slider */
 .dot-slider {
   background: transparent url("mapslider.png") no-repeat left center !important;

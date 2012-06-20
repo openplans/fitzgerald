@@ -10,6 +10,29 @@ var Fitzgerald = Fitzgerald || {};
   //   render: function(){}
   // });
 
+  F.FeedbackActivityView = Backbone.View.extend({
+    el: '.dot-feedback-activity',
+    initialize: function(){
+      this.model.bind('reset', this.render, this);
+    },
+    render: function(){
+      var values = $.map(this.model.toJSON(), function(intersection, i) {
+            return intersection.feedback.length;
+          }),
+          config = {
+            type: 'bar',
+            height: 20,
+            barSpacing: 2,
+            barColor: '#4b99da',
+            negBarColor: '#4b99da',
+            disableTooltips: true
+          };
+
+      config.barWidth = Math.floor(($(this.el).parent().width() - ((values.length - 1) * config.barSpacing)) / values.length);
+
+      $(this.el).sparkline($.map(values, function(val, i){ return -val; }), config);
+    }
+  });
 
   F.TooltipView = Backbone.View.extend({
     el: '.dot-tooltip',
@@ -61,9 +84,10 @@ var Fitzgerald = Fitzgerald || {};
     initialize: function(){
       this.model = new F.IntersectionCollection();
 
-      // The map slider
-      this.mapSliderView = new F.NavigatorView({ model: this.model });
-      this.tooltipView = new F.TooltipView({ model: this.model });
+      // Init the views
+      this.mapSlider = new F.NavigatorView({ model: this.model });
+      this.tooltip = new F.TooltipView({ model: this.model });
+      this.feedbackActivity = new F.FeedbackActivityView({ model: this.model });
 
       // Fetch the intersection records
       this.model.fetch();
