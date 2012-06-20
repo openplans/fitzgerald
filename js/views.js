@@ -10,20 +10,100 @@ var Fitzgerald = Fitzgerald || {};
   //   render: function(){}
   // });
 
+  F.AddFeedbackView = Backbone.View.extend({
+    el: 'body',
+    events: {
+      'click #dot-add-feedback': 'showForm'
+    },
+    initialize: function(){
+      F.on('locationupdate', this.setPosition, this);
+      this.render();
+    },
+    render: function(){
+      var self = this;
+
+      self.svp = StreetViewPlus({
+        target: '#dot-sv',
+        panoOptions: {
+          addressControl: false,
+          panControl: false,
+          clickToGo: false,
+          linksControl: false,
+          zoomControlOptions: {
+            style: google.maps.ZoomControlStyle.SMALL
+          }
+        },
+        onSubmit: function(evt){
+          evt.preventDefault();
+          var feedback = {};
+
+          $.each($(this).serializeArray(), function(i, item) {
+            feedback[item.name] = item.value;
+          });
+
+          self.save(feedback);
+        },
+        survey: [
+          {
+            "title": "Show and tell about the problems of this intersection.",
+            "name": "desc",
+            "id": "dot-survey-desc",
+            "class": "dot-survey-item",
+            "type": "textarea"
+          }
+        ]
+      });
+
+      self.$dialog = $('.svp-survey').dialog({
+        title: 'Tell us more',
+
+        autoOpen: false,
+        modal: true,
+        width:400,
+        height:247,
+        resizable: false,
+        buttons: {
+          "Save": function() {
+            self.svp.submit();
+            $(this).dialog("close");
+          }
+        }
+      });
+    },
+    setPosition: _.debounce(function(model) {
+      this.currentModel = model;
+      var latLng = new google.maps.LatLng(model.get('lat'), model.get('lng'));
+      this.svp.setPosition(latLng);
+    }, 500),
+    showForm: function() {
+      console.log('showForm');
+      this.svp.reset();
+      this.$dialog.dialog('open');
+    },
+    save: function(feedback) {
+      var allFeedback = this.currentModel.get('feedback');
+
+      allFeedback.push(feedback);
+      this.currentModel.save({'feedback': allFeedback}, {wait: true});
+    }
+  });
+
   F.FeedbackListView = Backbone.View.extend({
     el: '.dot-feedback',
+    colors: ['yellow', 'blue', 'magenta'],
     initialize: function(){
       F.on('locationupdate', this.render, this);
+      this.model.bind('change', this.render, this);
     },
-    render: function(index){
+    render: function(model){
       var self = this,
           $el = $(self.el),
-          feedback = this.model.at(index).get('feedback');
+          feedback = model.get('feedback');
 
       $el.empty();
 
       _.each(feedback, function(attrs, i) {
-        var color = colors[i % colors.length];
+        var color = self.colors[i % self.colors.length];
         $el.append('<li class="'+ color +'"><a href="#">' + attrs.desc + '</a></li>');
       });
     }
@@ -33,6 +113,7 @@ var Fitzgerald = Fitzgerald || {};
     el: '.dot-feedback-activity',
     initialize: function(){
       this.model.bind('reset', this.render, this);
+      this.model.bind('change', this.render, this);
     },
     render: function(){
       var values = $.map(this.model.toJSON(), function(intersection, i) {
@@ -57,13 +138,12 @@ var Fitzgerald = Fitzgerald || {};
     el: '.dot-tooltip',
     initialize: function(){
       F.on('locationupdate', this.render, this);
+      this.model.bind('change', this.render, this);
     },
-    render: function(index, percent){
-      var self = this;
-
-      $(self.el)
+    render: function(model, percent){
+      $(this.el)
         .css('left', (percent*100) + '%')
-        .html('<strong>' + self.model.at(index).get('feedback').length + '</strong> Comments');
+        .html('<strong>' + model.get('feedback').length + '</strong> Comments');
     }
   });
 
@@ -80,7 +160,7 @@ var Fitzgerald = Fitzgerald || {};
       $(self.el).slider({
         max: self.model.length,
         slide: function(evt, ui) {
-          F.trigger('locationupdate', ui.value, ui.value/self.model.length);
+          F.trigger('locationupdate', self.model.at(ui.value), ui.value/self.model.length);
         },
         stop: function(evt, ui) {
           // Update the cursor icon
@@ -94,7 +174,7 @@ var Fitzgerald = Fitzgerald || {};
       });
 
       // Update location to the first intersection
-      F.trigger('locationupdate', 0, 0);
+      F.trigger('locationupdate', self.model.at(0), 0);
     }
   });
 
@@ -108,6 +188,7 @@ var Fitzgerald = Fitzgerald || {};
       this.tooltip = new F.TooltipView({ model: this.model });
       this.feedbackActivity = new F.FeedbackActivityView({ model: this.model });
       this.feedbackList = new F.FeedbackListView({ model: this.model });
+      this.addFeedback = new F.AddFeedbackView({ model: this.model });
 
       // Fetch the intersection records
       this.model.fetch();

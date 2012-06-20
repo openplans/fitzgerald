@@ -26,20 +26,13 @@ body {
 /* Fitzgerald */
 #dot-container {
   position: relative;
-  clear:both;
-}
-
-.dot-header {
-  padding:10px 0;
 }
 
 .dot-title {
   font-size:2.5em;
-  float: left;
 }
 
 #dot-add-feedback {
-  float:right;
   font-size:1.8em;
 }
 
