@@ -94,14 +94,14 @@ body {
 }
 
 /* Slider */
-#dot-slider {
+.dot-slider {
   background: transparent url("mapslider.png") no-repeat left center !important;
   border:none;
   height:130px;
   width:680px;
 }
 
-#dot-slider .ui-slider-handle {
+.dot-slider .ui-slider-handle {
   background: transparent url("mapslider-handle.png") no-repeat center center !important;
   width: 49px;
   height:49px;
@@ -111,11 +111,11 @@ body {
   cursor: url(https://mail.google.com/mail/images/2/openhand.cur), default !important;
 }
 
-#dot-slider .ui-slider-handle.grabbed {
+.dot-slider .ui-slider-handle.grabbed {
   cursor: url(https://mail.google.com/mail/images/2/closedhand.cur), default !important;
 }
 
-#dot-slider-container {
+.dot-slider-container {
   padding: 1em 0;
   position: relative;
 }
