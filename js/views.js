@@ -10,6 +10,25 @@ var Fitzgerald = Fitzgerald || {};
   //   render: function(){}
   // });
 
+  F.FeedbackListView = Backbone.View.extend({
+    el: '.dot-feedback',
+    initialize: function(){
+      F.on('locationupdate', this.render, this);
+    },
+    render: function(index){
+      var self = this,
+          $el = $(self.el),
+          feedback = this.model.at(index).get('feedback');
+
+      $el.empty();
+
+      _.each(feedback, function(attrs, i) {
+        var color = colors[i % colors.length];
+        $el.append('<li class="'+ color +'"><a href="#">' + attrs.desc + '</a></li>');
+      });
+    }
+  });
+
   F.FeedbackActivityView = Backbone.View.extend({
     el: '.dot-feedback-activity',
     initialize: function(){
@@ -88,6 +107,7 @@ var Fitzgerald = Fitzgerald || {};
       this.mapSlider = new F.NavigatorView({ model: this.model });
       this.tooltip = new F.TooltipView({ model: this.model });
       this.feedbackActivity = new F.FeedbackActivityView({ model: this.model });
+      this.feedbackList = new F.FeedbackListView({ model: this.model });
 
       // Fetch the intersection records
       this.model.fetch();

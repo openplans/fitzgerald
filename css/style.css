@@ -51,7 +51,7 @@ body {
 }
 
 /* Feedback */
-.dot-feedback {
+.dot-feedback-container {
   position: absolute;
   padding:1em;
   margin:10px 0px;
