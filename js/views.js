@@ -17,8 +17,17 @@ var Fitzgerald = Fitzgerald || {};
       'click #dot-add-feedback': 'showForm'
     },
     initialize: function(){
-      F.on('locationupdate', this.setPosition, this);
-      this.render();
+      F.on('locationupdate', function(model) {
+        this.currentModel = model;
+
+        // Render if it's the first time
+        if (!this.svp) {
+          this.render();
+        }
+
+        // Update the SV position
+        this.setPosition(model);
+      }, this);
     },
     render: function(){
       var self = this;
@@ -26,6 +35,8 @@ var Fitzgerald = Fitzgerald || {};
       self.svp = StreetViewPlus({
         target: '#dot-sv',
         panoOptions: {
+          position: new google.maps.LatLng(self.currentModel.get('lat'), self.currentModel.get('lng')),
+          visible:true,
           addressControl: false,
           panControl: false,
           clickToGo: false,
@@ -72,7 +83,6 @@ var Fitzgerald = Fitzgerald || {};
       });
     },
     setPosition: _.debounce(function(model) {
-      this.currentModel = model;
       var latLng = new google.maps.LatLng(model.get('lat'), model.get('lng'));
       this.svp.setPosition(latLng);
 
