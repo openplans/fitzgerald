@@ -12,6 +12,7 @@ var Fitzgerald = Fitzgerald || {};
 
   F.AddFeedbackView = Backbone.View.extend({
     el: 'body',
+    titleEl: '.dot-title',
     events: {
       'click #dot-add-feedback': 'showForm'
     },
@@ -74,9 +75,10 @@ var Fitzgerald = Fitzgerald || {};
       this.currentModel = model;
       var latLng = new google.maps.LatLng(model.get('lat'), model.get('lng'));
       this.svp.setPosition(latLng);
+
+      $(this.titleEl).html('Fourth Avenue and ' + model.get('name'));
     }, 500),
     showForm: function() {
-      console.log('showForm');
       this.svp.reset();
       this.$dialog.dialog('open');
     },
@@ -143,7 +145,8 @@ var Fitzgerald = Fitzgerald || {};
     render: function(model, percent){
       $(this.el)
         .css('left', (percent*100) + '%')
-        .html('<strong>' + model.get('feedback').length + '</strong> Comments');
+        .html('<strong>' + model.get('feedback').length + '</strong> Comments')
+        .show();
     }
   });
 
@@ -192,9 +195,6 @@ var Fitzgerald = Fitzgerald || {};
 
       // Fetch the intersection records
       this.model.fetch();
-    },
-    render: function(){
-
     }
   });
 
