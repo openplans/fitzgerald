@@ -1,0 +1,183 @@
+body {
+  font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+  font-size:0.8em;
+  margin-left:50px;
+  width:680px;
+}
+
+/* >> The Magnificent CLEARFIX: Updated to prevent margin-collapsing on child elements << j.mp/bestclearfix */
+.clearfix:before, .clearfix:after {
+  content: "\0020"; display: block; height: 0; visibility: hidden;
+}
+.clearfix:after { clear: both; }
+
+/* Fix clearfix: blueprintcss.lighthouseapp.com/projects/15318/tickets/5-extra-margin-padding-bottom-of-page */
+.clearfix { zoom: 1; }
+
+/* Streetview Plus */
+.svp-streetview {
+  height:350px;
+}
+
+#svp-submit {
+  display: none;
+}
+
+/* Fitzgerald */
+#dot-container {
+  position: relative;
+  clear:both;
+}
+
+.dot-header {
+  padding:10px 0;
+}
+
+.dot-title {
+  font-size:2.5em;
+  float: left;
+}
+
+#dot-add-feedback {
+  float:right;
+  font-size:1.8em;
+}
+
+#dot-sv {
+  margin-right:200px;
+  width: 100%;
+  height: 350px;
+  border:1px solid #eee;
+}
+
+/* Feedback */
+.dot-feedback {
+  position: absolute;
+  padding:1em;
+  margin:10px 0px;
+  top:0;
+  right:-150px;
+  z-index:999;
+
+  max-height:350px;
+  overflow: auto;
+}
+
+.dot-feedback li {
+  font-family: 'Nothing You Could Do', cursive;
+  font-size:1.2em;
+  border:#444 1px solid;
+  padding:0.5em;
+  min-height:1.2em;
+  line-height:1.2em;
+  vertical-align: middle;
+  margin-bottom:1.4em;
+
+  width:200px;
+}
+
+.dot-feedback li.yellow {
+  background-color:#fef200;
+}
+
+.dot-feedback li.blue {
+  background-color:#00a9ea;
+}
+
+.dot-feedback li.magenta {
+  background-color:#ff99d6;
+}
+
+.dot-feedback li a {
+  text-decoration: none;
+  color:#444;
+}
+
+/* Slider */
+#dot-slider {
+  background: transparent url("mapslider.png") no-repeat left center !important;
+  border:none;
+  height:130px;
+  width:680px;
+}
+
+#dot-slider .ui-slider-handle {
+  background: transparent url("mapslider-handle.png") no-repeat center center !important;
+  width: 49px;
+  height:49px;
+  margin-left:-18px;
+  margin-top:32px;
+  border: none;
+  cursor: url(https://mail.google.com/mail/images/2/openhand.cur), default !important;
+}
+
+#dot-slider .ui-slider-handle.grabbed {
+  cursor: url(https://mail.google.com/mail/images/2/closedhand.cur), default !important;
+}
+
+#dot-slider-container {
+  padding: 1em 0;
+  position: relative;
+}
+
+#dot-survey-desc {
+  display: block;
+  padding:0.2em;
+  margin:1em 0;
+  width:360px;
+  height:90px;
+  resize: none;
+}
+
+/* Tooltip */
+.dot-tooltip {
+  position: absolute;
+  z-index:999;
+  padding: 5px;
+  background-color:#4b99da;
+  color:#fff;
+  width:7em;
+  text-align:center;
+  margin-left:-3.5em;
+
+  -moz-box-shadow:    0px 0px 10px #e0dcd5;
+  -webkit-box-shadow: 0px 0px 10px #e0dcd5;
+  box-shadow:         0px 0px 10px #e0dcd5;
+
+  border-radius: 3px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+
+  -webkit-transition: all 100ms ease-in-out;
+  -moz-transition: all 100ms ease-in-out;
+  -o-transition: all 100ms ease-in-out;
+  -ms-transition: all 100ms ease-in-out;
+  transition: all 100ms ease-in-out;
+}
+
+.dot-tooltip strong {
+  font-weight: bold;
+}
+
+.dot-tooltip:before {
+  content:"\0020";
+  position: absolute;
+  left:50%;
+  top:-6px;
+  margin-left:-5px;
+  height:10px;
+  width:10px;
+  z-index:999;
+  background-color:#4b99da;
+  display: block;
+
+  border-left:1px solid #fff;
+  border-top:1px solid #fff;
+
+  transform: rotate(45deg);
+  -ms-transform: rotate(45deg); /* IE 9 */
+  -webkit-transform: rotate(45deg); /* Safari and Chrome */
+  -o-transform: rotate(45deg); /* Opera */
+  -moz-transform: rotate(45deg); /* Firefox */
+}
+
