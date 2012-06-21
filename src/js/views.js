@@ -68,6 +68,8 @@ var Fitzgerald = Fitzgerald || {};
 
       F.on('locationupdatebyview', this.render, this);
       F.on('locationupdatebyrouter', this.render, this);
+      F.on('povupdatebyview', this.setPov, this);
+
     },
     render: function(model){
       this.currentModel = model;
@@ -80,6 +82,12 @@ var Fitzgerald = Fitzgerald || {};
       var latLng = new google.maps.LatLng(lat, lng);
       this.svp.setPosition(latLng);
     }, 500),
+    setPov: function(config) {
+      this.svp.setPov(
+        parseFloat(config.heading),
+        parseFloat(config.pitch),
+        parseInt(config.zoom, 10));
+    },
     setTitle: function(title) {
       $(this.titleEl).html(title);
     },
@@ -99,21 +107,35 @@ var Fitzgerald = Fitzgerald || {};
     el: '.dot-feedback',
     colors: ['yellow', 'blue', 'magenta'],
     initialize: function(){
+      var self = this;
+
       // Update the list if we move locations
       F.on('locationupdatebyview', this.render, this);
       F.on('locationupdatebyrouter', this.render, this);
       // Update the list if the model changes
       this.model.bind('change', this.render, this);
+
+      this.$el.on('click', 'li', function(evt){
+        evt.preventDefault();
+
+        var feedbackIndex = parseInt($(this).attr('data-index'), 10);
+        var feedback = self.currentModel.get('feedback')[feedbackIndex];
+
+        self.focusOnFeedback(feedback);
+      });
     },
     render: function(model){
       var self = this;
-
+      self.currentModel = model;
       self.$el.empty();
 
       _.each(model.get('feedback'), function(attrs, i) {
         var color = self.colors[i % self.colors.length];
-        self.$el.append('<li class="'+ color +'"><a href="#">' + attrs.desc + '</a></li>');
+        self.$el.append('<li data-index="'+i+'" class="'+ color +'"><a href="#">' + attrs.desc + '</a></li>');
       });
+    },
+    focusOnFeedback: function(feedback) {
+      F.trigger('povupdatebyview', feedback);
     }
   });
 

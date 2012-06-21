@@ -99,6 +99,14 @@ var StreetViewPlus = (function($) {
       initSurvey($surveyForm);
     };
 
+    self.setPov = function(heading, pitch, zoom) {
+      panorama.setPov({
+        heading: heading,
+        pitch: pitch,
+        zoom: zoom
+      });
+    };
+
     self.setSurvey = function(survey) {
       options.survey = survey;
       initSurvey($surveyForm);

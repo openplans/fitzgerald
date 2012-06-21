@@ -67,6 +67,7 @@ body {
   margin-bottom:1.4em;
 
   width:200px;
+  cursor: pointer;
 }
 
 .dot-feedback li.yellow {
