@@ -1,9 +1,6 @@
 var Fitzgerald = Fitzgerald || {};
 
 (function(F) {
-  // Setup the namespace to trigger/bind events
-  _.extend(F, Backbone.Events);
-
   // F.View = Backbone.View.extend({
   //   el: '',
   //   initialize: function(){},
@@ -17,25 +14,12 @@ var Fitzgerald = Fitzgerald || {};
       'click #dot-add-feedback': 'showForm'
     },
     initialize: function(){
-      F.on('locationupdate', function(model) {
-        this.currentModel = model;
-
-        // Render if it's the first time
-        if (!this.svp) {
-          this.render();
-        }
-
-        // Update the SV position
-        this.setPosition(model);
-      }, this);
-    },
-    render: function(){
       var self = this;
 
       self.svp = StreetViewPlus({
         target: '#dot-sv',
         panoOptions: {
-          position: new google.maps.LatLng(self.currentModel.get('lat'), self.currentModel.get('lng')),
+          position: new google.maps.LatLng(0, 0),
           visible:true,
           addressControl: false,
           panControl: false,
@@ -81,13 +65,24 @@ var Fitzgerald = Fitzgerald || {};
           }
         }
       });
-    },
-    setPosition: _.debounce(function(model) {
-      var latLng = new google.maps.LatLng(model.get('lat'), model.get('lng'));
-      this.svp.setPosition(latLng);
 
-      $(this.titleEl).html('Fourth Avenue and ' + model.get('name'));
+      F.on('locationupdatebyview', this.render, this);
+      F.on('locationupdatebyrouter', this.render, this);
+    },
+    render: function(model){
+      this.currentModel = model;
+
+      // Update the SV position
+      this.setPosition(model.get('lat'), model.get('lng'));
+      this.setTitle('Fourth Avenue and ' + model.get('name'));
+    },
+    setPosition: _.debounce(function(lat, lng) {
+      var latLng = new google.maps.LatLng(lat, lng);
+      this.svp.setPosition(latLng);
     }, 500),
+    setTitle: function(title) {
+      $(this.titleEl).html(title);
+    },
     showForm: function() {
       this.svp.reset();
       this.$dialog.dialog('open');
@@ -104,19 +99,20 @@ var Fitzgerald = Fitzgerald || {};
     el: '.dot-feedback',
     colors: ['yellow', 'blue', 'magenta'],
     initialize: function(){
-      F.on('locationupdate', this.render, this);
+      // Update the list if we move locations
+      F.on('locationupdatebyview', this.render, this);
+      F.on('locationupdatebyrouter', this.render, this);
+      // Update the list if the model changes
       this.model.bind('change', this.render, this);
     },
     render: function(model){
-      var self = this,
-          $el = $(self.el),
-          feedback = model.get('feedback');
+      var self = this;
 
-      $el.empty();
+      self.$el.empty();
 
-      _.each(feedback, function(attrs, i) {
+      _.each(model.get('feedback'), function(attrs, i) {
         var color = self.colors[i % self.colors.length];
-        $el.append('<li class="'+ color +'"><a href="#">' + attrs.desc + '</a></li>');
+        self.$el.append('<li class="'+ color +'"><a href="#">' + attrs.desc + '</a></li>');
       });
     }
   });
@@ -140,20 +136,23 @@ var Fitzgerald = Fitzgerald || {};
             disableTooltips: true
           };
 
-      config.barWidth = Math.floor(($(this.el).parent().width() - ((values.length - 1) * config.barSpacing)) / values.length);
+      config.barWidth = Math.floor((this.$el.parent().width() - ((values.length - 1) * config.barSpacing)) / values.length);
 
-      $(this.el).sparkline($.map(values, function(val, i){ return -val; }), config);
+      this.$el.sparkline($.map(values, function(val, i){ return -val; }), config);
     }
   });
 
   F.TooltipView = Backbone.View.extend({
     el: '.dot-tooltip',
     initialize: function(){
-      F.on('locationupdate', this.render, this);
+      F.on('locationupdatebyview', this.render, this);
+      F.on('locationupdatebyrouter', this.render, this);
       this.model.bind('change', this.render, this);
     },
-    render: function(model, percent){
-      $(this.el)
+    render: function(model){
+      var percent = this.model.indexOf(model) / this.model.length;
+
+      this.$el
         .css('left', (percent*100) + '%')
         .html('<strong>' + model.get('feedback').length + '</strong> Comments')
         .show();
@@ -166,18 +165,22 @@ var Fitzgerald = Fitzgerald || {};
     initialize: function(){
       // Render thyself when the data shows up
       this.model.bind('reset', this.render, this);
+
+      F.on('locationupdatebyrouter', this.setPosition, this);
     },
     render: function() {
       var self = this;
 
-      $(self.el).slider({
+      // Setup slider
+      self.$el.slider({
         max: self.model.length,
         slide: function(evt, ui) {
-          F.trigger('locationupdate', self.model.at(ui.value), ui.value/self.model.length);
+          F.trigger('locationupdatebyview', self.model.at(ui.value));
         },
         stop: function(evt, ui) {
           // Update the cursor icon
           $(ui.handle).removeClass('grabbed');
+          self.router.navigate(self.model.at(ui.value).get('id'));
         }
       });
 
@@ -187,13 +190,25 @@ var Fitzgerald = Fitzgerald || {};
       });
 
       // Update location to the first intersection
-      F.trigger('locationupdate', self.model.at(0), 0);
+      F.trigger('locationupdatebyview', self.model.at(0));
+
+      // Setup routing
+      self.router = new F.Router({
+        model: self.model
+      });
+      Backbone.history.start();
+    },
+    setPosition: function(model){
+      this.$el.slider('value', this.model.indexOf(model));
     }
   });
 
   F.AppView = Backbone.View.extend({
-    el: '',
     initialize: function(){
+      // Setup the namespace to trigger/bind events
+      _.extend(F, Backbone.Events);
+
+      // Init the collection
       this.model = new F.IntersectionCollection();
 
       // Init the views

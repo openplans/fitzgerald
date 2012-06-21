@@ -6,7 +6,7 @@ var Fitzgerald = Fitzgerald || {};
   F.IntersectionModel = Backbone.Model.extend({});
 
   // Setup the collection to support localStorage when running on localhost
-  collectionOptions = F.isLocalhost() ? {
+  collectionOptions = F.Util.isLocalhost() ? {
     url: '/intersections/',
     model: F.IntersectionModel
   } : {
