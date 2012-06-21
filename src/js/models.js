@@ -1,6 +1,6 @@
 var Fitzgerald = Fitzgerald || {};
 
-(function(F) {
+(function(F, $) {
   var collectionOptions;
   // Define the Intersection model
   F.IntersectionModel = Backbone.Model.extend({});
@@ -14,4 +14,4 @@ var Fitzgerald = Fitzgerald || {};
     model: F.IntersectionModel
   };
   F.IntersectionCollection = Backbone.Collection.extend(collectionOptions);
-})(Fitzgerald);
+})(Fitzgerald, jQuery);

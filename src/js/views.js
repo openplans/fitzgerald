@@ -1,6 +1,6 @@
 var Fitzgerald = Fitzgerald || {};
 
-(function(F) {
+(function(F, $) {
   // F.View = Backbone.View.extend({
   //   el: '',
   //   initialize: function(){},
@@ -224,4 +224,4 @@ var Fitzgerald = Fitzgerald || {};
   });
 
   new F.AppView();
-})(Fitzgerald);
+})(Fitzgerald, jQuery);

@@ -1,6 +1,6 @@
 var Fitzgerald = Fitzgerald || {};
 
-(function(F) {
+(function(F, $) {
 
   F.Util = {
     isLocalhost: function(url){
@@ -8,4 +8,4 @@ var Fitzgerald = Fitzgerald || {};
       return (url.indexOf('localhost') > 0 || url.indexOf('127.0.0.1') > 0);
     }
   };
-})(Fitzgerald);
+})(Fitzgerald, jQuery);

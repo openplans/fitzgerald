@@ -1,6 +1,6 @@
 var Fitzgerald = Fitzgerald || {};
 
-(function(F) {
+(function(F, $) {
 
   F.Router = Backbone.Router.extend({
     initialize: function(options) {
@@ -19,4 +19,4 @@ var Fitzgerald = Fitzgerald || {};
       }
     }
   });
-})(Fitzgerald);
+})(Fitzgerald, jQuery);
