@@ -315,13 +315,18 @@ Fitzgerald.testData = [
   }
 ];
 
-var collection = new Fitzgerald.IntersectionCollection();
-collection.fetch();
+(function(F){
+  var collection;
+  if (F.Util.isLocalhost()) {
+    collection = new F.IntersectionCollection();
+    collection.fetch();
 
-if (collection.length === 0) {
-  Fitzgerald.testData.forEach(function(obj, i) {
-    collection.create(obj);
-    console.log(obj);
-  });
-  console.log(collection.toJSON());
-}
+    if (collection.length === 0) {
+      F.testData.forEach(function(obj, i) {
+        collection.create(obj);
+        console.log(obj);
+      });
+      console.log(collection.toJSON());
+    }
+  }
+})(Fitzgerald);

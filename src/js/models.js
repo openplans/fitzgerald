@@ -7,10 +7,10 @@ var Fitzgerald = Fitzgerald || {};
 
   // Setup the collection to support localStorage when running on localhost
   collectionOptions = F.Util.isLocalhost() ? {
-    url: '/intersections/',
+    localStorage: new Backbone.LocalStorage("fitzgerald-intersections"),
     model: F.IntersectionModel
   } : {
-    localStorage: new Backbone.LocalStorage("fitzgerald-intersections"),
+    url: '/intersections/',
     model: F.IntersectionModel
   };
   F.IntersectionCollection = Backbone.Collection.extend(collectionOptions);
