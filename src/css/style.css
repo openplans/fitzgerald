@@ -99,7 +99,7 @@ body {
 .dot-slider {
   background: transparent url("mapslider.png") no-repeat left center !important;
   border:none;
-  height:130px;
+  height:160px;
   width:680px;
 }
 
@@ -108,9 +108,10 @@ body {
   width: 49px;
   height:49px;
   margin-left:-18px;
-  margin-top:32px;
+  margin-top:57px;
   border: none;
   cursor: url(https://mail.google.com/mail/images/2/openhand.cur), default !important;
+  outline: 0;
 }
 
 .dot-slider .ui-slider-handle.grabbed {
@@ -118,7 +119,7 @@ body {
 }
 
 .dot-slider-container {
-  padding: 1em 0;
+  padding: 21px 0 1em 0;
   position: relative;
 }
 
