@@ -96,7 +96,7 @@ var StreetViewPlus = (function($) {
       panorama.setPosition(latLng);
       self.show();
 
-      initSurvey($surveyForm);
+      self.reset();
     };
 
     self.setPov = function(heading, pitch, zoom) {
