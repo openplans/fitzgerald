@@ -1,6 +1,9 @@
 var Fitzgerald = Fitzgerald || {};
 
 (function(F, $) {
+  // To help out the Wordpress PHP backend
+  Backbone.emulateHTTP = true;
+
   var collectionOptions;
   // Define the Intersection model
   F.IntersectionModel = Backbone.Model.extend({});
@@ -10,7 +13,7 @@ var Fitzgerald = Fitzgerald || {};
     localStorage: new Backbone.LocalStorage("fitzgerald-intersections"),
     model: F.IntersectionModel
   } : {
-    url: '/intersections/',
+    url: '/4thave/wp-admin/admin-ajax.php?action=intersections',
     model: F.IntersectionModel
   };
   F.IntersectionCollection = Backbone.Collection.extend(collectionOptions);
