@@ -202,7 +202,7 @@ var Fitzgerald = Fitzgerald || {};
         stop: function(evt, ui) {
           // Update the cursor icon
           $(ui.handle).removeClass('grabbed');
-          self.router.navigate(self.model.at(ui.value).get('id'));
+          self.router.navigate(self.model.at(ui.value).get('id').toString());
         }
       });
 
