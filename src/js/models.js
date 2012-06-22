@@ -6,7 +6,12 @@ var Fitzgerald = Fitzgerald || {};
 
   var collectionOptions;
   // Define the Intersection model
-  F.IntersectionModel = Backbone.Model.extend({});
+  F.IntersectionModel = Backbone.Model.extend({
+    // Whacky code for non-REST Wordpress support
+    url: function() {
+      return this.urlRoot || this.collection.url;
+    }
+  });
 
   // Setup the collection to support localStorage when running on localhost
   collectionOptions = F.Util.isLocalhost() ? {
