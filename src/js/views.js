@@ -115,7 +115,7 @@ var Fitzgerald = Fitzgerald || {};
       // Update the list if the model changes
       this.model.bind('change', this.render, this);
 
-      this.$el.on('click', 'li', function(evt){
+      this.$el.delegate('li', 'click', function(evt){
         evt.preventDefault();
 
         var feedbackIndex = parseInt($(this).attr('data-index'), 10);
