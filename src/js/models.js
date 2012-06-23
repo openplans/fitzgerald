@@ -5,8 +5,8 @@ var Fitzgerald = Fitzgerald || {};
   Backbone.emulateHTTP = true;
 
   var collectionOptions;
-  // Define the Intersection model
-  F.IntersectionModel = Backbone.Model.extend({
+  // Define the Location model
+  F.LocationModel = Backbone.Model.extend({
     // Whacky code for non-REST Wordpress support
     url: function() {
       return this.urlRoot || this.collection.url;
@@ -16,10 +16,10 @@ var Fitzgerald = Fitzgerald || {};
   // Setup the collection to support localStorage when running on localhost
   collectionOptions = F.Util.isLocalhost() ? {
     localStorage: new Backbone.LocalStorage("fitzgerald-intersections"),
-    model: F.IntersectionModel
+    model: F.LocationModel
   } : {
     url: '/4thave/wp-admin/admin-ajax.php?action=intersections',
-    model: F.IntersectionModel
+    model: F.LocationModel
   };
-  F.IntersectionCollection = Backbone.Collection.extend(collectionOptions);
+  F.LocationCollection = Backbone.Collection.extend(collectionOptions);
 })(Fitzgerald, jQuery);

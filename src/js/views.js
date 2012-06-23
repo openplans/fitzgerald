@@ -146,8 +146,8 @@ var Fitzgerald = Fitzgerald || {};
       this.collection.bind('change', this.render, this);
     },
     render: function(){
-      var values = $.map(this.collection.toJSON(), function(intersection, i) {
-            return intersection.feedback.length;
+      var values = $.map(this.collection.toJSON(), function(location, i) {
+            return location.feedback.length;
           }),
           config = {
             type: 'bar',
@@ -211,7 +211,7 @@ var Fitzgerald = Fitzgerald || {};
         $(this).addClass('grabbed');
       });
 
-      // Update location to the first intersection
+      // Update location to the first location
       F.trigger('locationupdatebyview', self.collection.at(0));
 
       // Setup routing
@@ -231,7 +231,7 @@ var Fitzgerald = Fitzgerald || {};
       _.extend(F, Backbone.Events);
 
       // Init the collection
-      this.collection = new F.IntersectionCollection();
+      this.collection = new F.LocationCollection();
 
       // Init the views
       this.mapSlider = new F.NavigatorView({ collection: this.collection });
@@ -240,7 +240,7 @@ var Fitzgerald = Fitzgerald || {};
       this.feedbackList = new F.FeedbackListView({ collection: this.collection });
       this.addFeedback = new F.AddFeedbackView({ collection: this.collection });
 
-      // Fetch the intersection records
+      // Fetch the location records
       this.collection.fetch();
     }
   });
