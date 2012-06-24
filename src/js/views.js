@@ -66,17 +66,19 @@ var Fitzgerald = Fitzgerald || {};
         }
       });
 
-      F.on('locationupdatebyview', this.render, this);
-      F.on('locationupdatebyrouter', this.render, this);
+      F.on('locationupdatebyview', this.onLocationUpdate, this);
+      F.on('locationupdatebyrouter', this.onLocationUpdate, this);
       F.on('povupdatebyview', this.setPov, this);
 
     },
-    render: function(model){
-      this.currentModel = model;
-
+    onLocationUpdate: function(model) {
+      this.locationModel = model;
+      this.render();
+    },
+    render: function(){
       // Update the SV position
-      this.setPosition(model.get('lat'), model.get('lng'));
-      this.setTitle('Fourth Avenue and ' + model.get('name'));
+      this.setPosition(this.locationModel.get('lat'), this.locationModel.get('lng'));
+      this.setTitle('Fourth Avenue and ' + this.locationModel.get('name'));
     },
     setPosition: _.debounce(function(lat, lng) {
       var latLng = new google.maps.LatLng(lat, lng);
@@ -96,10 +98,10 @@ var Fitzgerald = Fitzgerald || {};
       this.$dialog.dialog('open');
     },
     save: function(feedback) {
-      var allFeedback = this.currentModel.get('feedback');
+      var allFeedback = this.locationModel.get('feedback');
 
       allFeedback.push(feedback);
-      this.currentModel.save({'feedback': allFeedback}, {wait: true});
+      this.locationModel.save({'feedback': allFeedback}, {wait: true});
     }
   });
 
@@ -110,8 +112,8 @@ var Fitzgerald = Fitzgerald || {};
       var self = this;
 
       // Update the list if we move locations
-      F.on('locationupdatebyview', this.render, this);
-      F.on('locationupdatebyrouter', this.render, this);
+      F.on('locationupdatebyview', this.onLocationUpdate, this);
+      F.on('locationupdatebyrouter', this.onLocationUpdate, this);
       // Update the list if the model changes
       this.collection.bind('change', this.render, this);
 
@@ -119,17 +121,20 @@ var Fitzgerald = Fitzgerald || {};
         evt.preventDefault();
 
         var feedbackIndex = parseInt($(this).attr('data-index'), 10);
-        var feedback = self.currentModel.get('feedback')[feedbackIndex];
+        var feedback = self.locationModel.get('feedback')[feedbackIndex];
 
         self.focusOnFeedback(feedback);
       });
     },
-    render: function(model){
+    onLocationUpdate: function(model) {
+      this.locationModel = model;
+      this.render();
+    },
+    render: function(){
       var self = this;
-      self.currentModel = model;
       self.$el.empty();
 
-      _.each(model.get('feedback'), function(attrs, i) {
+      _.each(self.locationModel.get('feedback'), function(attrs, i) {
         var color = self.colors[i % self.colors.length];
         self.$el.append('<li data-index="'+i+'" class="'+ color +'"><a href="#">' + attrs.desc + '</a></li>');
       });
@@ -159,7 +164,6 @@ var Fitzgerald = Fitzgerald || {};
           };
 
       config.barWidth = Math.floor((this.$el.parent().width() - ((values.length - 1) * config.barSpacing)) / values.length);
-
       this.$el.sparkline($.map(values, function(val, i){ return -val; }), config);
     }
   });
@@ -167,16 +171,20 @@ var Fitzgerald = Fitzgerald || {};
   F.TooltipView = Backbone.View.extend({
     el: '.dot-tooltip',
     initialize: function(){
-      F.on('locationupdatebyview', this.render, this);
-      F.on('locationupdatebyrouter', this.render, this);
+      F.on('locationupdatebyview', this.onLocationUpdate, this);
+      F.on('locationupdatebyrouter', this.onLocationUpdate, this);
       this.collection.bind('change', this.render, this);
     },
-    render: function(model){
-      var percent = this.collection.indexOf(model) / this.collection.length;
+    onLocationUpdate: function(model) {
+      this.locationModel = model;
+      this.render();
+    },
+    render: function(){
+      var percent = this.collection.indexOf(this.locationModel) / this.collection.length;
 
       this.$el
         .css('left', (percent*100) + '%')
-        .html('<strong>' + model.get('feedback').length + '</strong> Comments')
+        .html('<strong>' + this.locationModel.get('feedback').length + '</strong> Comments')
         .show();
     }
   });
@@ -188,7 +196,11 @@ var Fitzgerald = Fitzgerald || {};
       // Render thyself when the data shows up
       this.collection.bind('reset', this.render, this);
 
-      F.on('locationupdatebyrouter', this.setPosition, this);
+      F.on('locationupdatebyrouter', this.onLocationUpdate, this);
+    },
+    onLocationUpdate: function(model) {
+      this.locationModel = model;
+      this.setPosition();
     },
     render: function() {
       var self = this;
@@ -211,7 +223,7 @@ var Fitzgerald = Fitzgerald || {};
         $(this).addClass('grabbed');
       });
 
-      // Update location to the first location
+      // Update to the first location
       F.trigger('locationupdatebyview', self.collection.at(0));
 
       // Setup routing
@@ -220,8 +232,8 @@ var Fitzgerald = Fitzgerald || {};
       });
       Backbone.history.start();
     },
-    setPosition: function(model){
-      this.$el.slider('value', this.collection.indexOf(model));
+    setPosition: function(){
+      this.$el.slider('value', this.collection.indexOf(this.locationModel));
     }
   });
 
