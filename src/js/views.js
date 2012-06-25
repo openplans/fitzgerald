@@ -58,13 +58,19 @@ var Fitzgerald = Fitzgerald || {};
         width:400,
         height:247,
         resizable: false,
-        buttons: {
-          "Save": function() {
-            self.svp.submit();
-            $(this).dialog("close");
+        buttons: [
+          {
+            id: 'dialog-save',
+            text: "Save",
+            click: function() {
+              self.svp.submit();
+              $(this).dialog("close");
+            }
           }
-        }
+        ]
       });
+
+      self.initCharCounter();
 
       F.on('locationupdatebyview', this.onLocationUpdate, this);
       F.on('locationupdatebyrouter', this.onLocationUpdate, this);
@@ -98,7 +104,7 @@ var Fitzgerald = Fitzgerald || {};
     },
     save: function(feedback) {
       var self = this;
-      feedback.intersection_id = self.locationModel.get('id');
+          feedback.intersection_id = self.locationModel.get('id');
 
       new F.FeedbackModel().save(feedback, {
         success: function (model, response) {
@@ -107,6 +113,37 @@ var Fitzgerald = Fitzgerald || {};
           self.locationModel.set({'feedback': allFeedback});
         }
       });
+    },
+    initCharCounter: function() {
+      var self = this,
+          $saveBtn = $('#dialog-save');
+
+      self.$textarea = $('#dot-survey-desc');
+      self.$counter = $('<div class="dot-counter">counter</div>').insertAfter(self.$textarea);
+
+      function charsLeft() {
+        var chars = self.$textarea.val().length;
+        return self.options.maxChars - chars;
+      }
+
+      function onChange() {
+        var available = charsLeft();
+        // Update counter
+        self.$counter.html(available);
+
+        if (available >= 0) {
+          // Enable
+          $saveBtn.removeAttr('disabled');
+        } else {
+          // Disable
+          $saveBtn.attr('disabled', 'disabled');
+        }
+      }
+
+      self.$textarea.keyup(onChange);
+      self.$textarea.change(onChange);
+
+      onChange();
     }
   });
 
@@ -255,7 +292,10 @@ var Fitzgerald = Fitzgerald || {};
       this.tooltip = new F.TooltipView({ collection: this.collection });
       this.feedbackActivity = new F.FeedbackActivityView({ collection: this.collection });
       this.feedbackList = new F.FeedbackListView({ collection: this.collection });
-      this.addFeedback = new F.AddFeedbackView({ collection: this.collection });
+      this.addFeedback = new F.AddFeedbackView({
+        collection: this.collection,
+        maxChars: 200
+      });
 
       // Fetch the location records
       this.collection.fetch();
