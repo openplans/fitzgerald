@@ -141,6 +141,12 @@ body {
   border: none;
   cursor: url(https://mail.google.com/mail/images/2/openhand.cur), default !important;
   outline: 0;
+
+  -webkit-transition: all 100ms ease-in-out;
+  -moz-transition: all 100ms ease-in-out;
+  -o-transition: all 100ms ease-in-out;
+  -ms-transition: all 100ms ease-in-out;
+  transition: all 100ms ease-in-out;
 }
 
 .dot-slider .ui-slider-handle.grabbed {

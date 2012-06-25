@@ -72,8 +72,9 @@ var Fitzgerald = Fitzgerald || {};
 
       self.initCharCounter();
 
-      F.on('locationupdatebyview', this.onLocationUpdate, this);
+      F.on('locationupdatebyslider', this.onLocationUpdate, this);
       F.on('locationupdatebyrouter', this.onLocationUpdate, this);
+      F.on('locationupdatebybargraph', this.onLocationUpdate, this);
       F.on('povupdatebyview', this.setPov, this);
     },
     onLocationUpdate: function(model) {
@@ -154,8 +155,9 @@ var Fitzgerald = Fitzgerald || {};
       var self = this;
 
       // Update the list if we move locations
-      F.on('locationupdatebyview', this.onLocationUpdate, this);
+      F.on('locationupdatebyslider', this.onLocationUpdate, this);
       F.on('locationupdatebyrouter', this.onLocationUpdate, this);
+      F.on('locationupdatebybargraph', this.onLocationUpdate, this);
       // Update the list if the model changes
       this.collection.bind('change', this.render, this);
 
@@ -193,7 +195,8 @@ var Fitzgerald = Fitzgerald || {};
       this.collection.bind('change', this.render, this);
     },
     render: function(){
-      var values = $.map(this.collection.toJSON(), function(location, i) {
+      var self = this,
+          values = $.map(self.collection.toJSON(), function(location, i) {
             return location.feedback.length;
           }),
           config = {
@@ -205,16 +208,22 @@ var Fitzgerald = Fitzgerald || {};
             disableTooltips: true
           };
 
-      config.barWidth = Math.floor((this.$el.parent().width() - ((values.length - 1) * config.barSpacing)) / values.length);
-      this.$el.sparkline($.map(values, function(val, i){ return -val; }), config);
+      config.barWidth = Math.floor((self.$el.parent().width() - ((values.length - 1) * config.barSpacing)) / values.length);
+      self.$el.sparkline($.map(values, function(val, i){ return -val; }), config);
+      self.$el.bind('sparklineClick', function(evt) {
+        var sparkline = evt.sparklines[0],
+            region = sparkline.getCurrentRegionFields()[0];
+        F.trigger('locationupdatebybargraph', self.collection.at(region.offset));
+      });
     }
   });
 
   F.TooltipView = Backbone.View.extend({
     el: '.dot-tooltip',
     initialize: function(){
-      F.on('locationupdatebyview', this.onLocationUpdate, this);
+      F.on('locationupdatebyslider', this.onLocationUpdate, this);
       F.on('locationupdatebyrouter', this.onLocationUpdate, this);
+      F.on('locationupdatebybargraph', this.onLocationUpdate, this);
       this.collection.bind('change', this.render, this);
     },
     onLocationUpdate: function(model) {
@@ -239,6 +248,7 @@ var Fitzgerald = Fitzgerald || {};
       this.collection.bind('reset', this.render, this);
 
       F.on('locationupdatebyrouter', this.onLocationUpdate, this);
+      F.on('locationupdatebybargraph', this.onLocationUpdate, this);
     },
     onLocationUpdate: function(model) {
       this.locationModel = model;
@@ -251,7 +261,7 @@ var Fitzgerald = Fitzgerald || {};
       self.$el.slider({
         max: self.collection.length,
         slide: function(evt, ui) {
-          F.trigger('locationupdatebyview', self.collection.at(ui.value));
+          F.trigger('locationupdatebyslider', self.collection.at(ui.value));
         },
         stop: function(evt, ui) {
           // Update the cursor icon
@@ -266,7 +276,7 @@ var Fitzgerald = Fitzgerald || {};
       });
 
       // Update to the first location
-      F.trigger('locationupdatebyview', self.collection.at(0));
+      F.trigger('locationupdatebyslider', self.collection.at(0));
 
       // Setup routing
       self.router = new F.Router({
