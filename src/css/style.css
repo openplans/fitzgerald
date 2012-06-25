@@ -125,7 +125,7 @@ body {
 .dot-slider {
   background: transparent url("mapslider.png") no-repeat left center !important;
   border:none;
-  height:160px;
+  height:140px;
   width:680px;
      -moz-border-radius: 0;
   -webkit-border-radius: 0;
