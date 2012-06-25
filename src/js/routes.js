@@ -4,7 +4,7 @@ var Fitzgerald = Fitzgerald || {};
 
   F.Router = Backbone.Router.extend({
     initialize: function(options) {
-      this.model = options.model;
+      this.collection = options.collection;
     },
 
     routes: {
@@ -12,10 +12,10 @@ var Fitzgerald = Fitzgerald || {};
     },
 
     goToIntersection: function(id) {
-      var model = this.model.get(id);
+      var collection = this.collection.get(id);
 
-      if (model) {
-        F.trigger('locationupdatebyrouter', model);
+      if (collection) {
+        F.trigger('locationupdatebyrouter', collection);
       }
     }
   });

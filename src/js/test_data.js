@@ -318,7 +318,7 @@ Fitzgerald.testData = [
 (function(F){
   var collection;
   if (F.Util.isLocalhost()) {
-    collection = new F.IntersectionCollection();
+    collection = new F.LocationCollection();
     collection.fetch();
 
     if (collection.length === 0) {

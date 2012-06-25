@@ -66,17 +66,18 @@ var Fitzgerald = Fitzgerald || {};
         }
       });
 
-      F.on('locationupdatebyview', this.render, this);
-      F.on('locationupdatebyrouter', this.render, this);
+      F.on('locationupdatebyview', this.onLocationUpdate, this);
+      F.on('locationupdatebyrouter', this.onLocationUpdate, this);
       F.on('povupdatebyview', this.setPov, this);
-
     },
-    render: function(model){
-      this.currentModel = model;
-
+    onLocationUpdate: function(model) {
+      this.locationModel = model;
+      this.render();
+    },
+    render: function(){
       // Update the SV position
-      this.setPosition(model.get('lat'), model.get('lng'));
-      this.setTitle('Fourth Avenue and ' + model.get('name'));
+      this.setPosition(this.locationModel.get('lat'), this.locationModel.get('lng'));
+      this.setTitle('Fourth Avenue and ' + this.locationModel.get('name'));
     },
     setPosition: _.debounce(function(lat, lng) {
       var latLng = new google.maps.LatLng(lat, lng);
@@ -96,10 +97,16 @@ var Fitzgerald = Fitzgerald || {};
       this.$dialog.dialog('open');
     },
     save: function(feedback) {
-      var allFeedback = this.currentModel.get('feedback');
+      var self = this;
+      feedback.intersection_id = self.locationModel.get('id');
 
-      allFeedback.push(feedback);
-      this.currentModel.save({'feedback': allFeedback}, {wait: true});
+      new F.FeedbackModel().save(feedback, {
+        success: function (model, response) {
+          var allFeedback = self.locationModel.get('feedback').slice();
+          allFeedback.push(feedback);
+          self.locationModel.set({'feedback': allFeedback});
+        }
+      });
     }
   });
 
@@ -110,26 +117,29 @@ var Fitzgerald = Fitzgerald || {};
       var self = this;
 
       // Update the list if we move locations
-      F.on('locationupdatebyview', this.render, this);
-      F.on('locationupdatebyrouter', this.render, this);
+      F.on('locationupdatebyview', this.onLocationUpdate, this);
+      F.on('locationupdatebyrouter', this.onLocationUpdate, this);
       // Update the list if the model changes
-      this.model.bind('change', this.render, this);
+      this.collection.bind('change', this.render, this);
 
       this.$el.delegate('li', 'click', function(evt){
         evt.preventDefault();
 
         var feedbackIndex = parseInt($(this).attr('data-index'), 10);
-        var feedback = self.currentModel.get('feedback')[feedbackIndex];
+        var feedback = self.locationModel.get('feedback')[feedbackIndex];
 
         self.focusOnFeedback(feedback);
       });
     },
-    render: function(model){
+    onLocationUpdate: function(model) {
+      this.locationModel = model;
+      this.render();
+    },
+    render: function(){
       var self = this;
-      self.currentModel = model;
       self.$el.empty();
 
-      _.each(model.get('feedback'), function(attrs, i) {
+      _.each(self.locationModel.get('feedback'), function(attrs, i) {
         var color = self.colors[i % self.colors.length];
         self.$el.append('<li data-index="'+i+'" class="'+ color +'"><a href="#">' + attrs.desc + '</a></li>');
       });
@@ -142,12 +152,12 @@ var Fitzgerald = Fitzgerald || {};
   F.FeedbackActivityView = Backbone.View.extend({
     el: '.dot-feedback-activity',
     initialize: function(){
-      this.model.bind('reset', this.render, this);
-      this.model.bind('change', this.render, this);
+      this.collection.bind('reset', this.render, this);
+      this.collection.bind('change', this.render, this);
     },
     render: function(){
-      var values = $.map(this.model.toJSON(), function(intersection, i) {
-            return intersection.feedback.length;
+      var values = $.map(this.collection.toJSON(), function(location, i) {
+            return location.feedback.length;
           }),
           config = {
             type: 'bar',
@@ -159,7 +169,6 @@ var Fitzgerald = Fitzgerald || {};
           };
 
       config.barWidth = Math.floor((this.$el.parent().width() - ((values.length - 1) * config.barSpacing)) / values.length);
-
       this.$el.sparkline($.map(values, function(val, i){ return -val; }), config);
     }
   });
@@ -167,16 +176,20 @@ var Fitzgerald = Fitzgerald || {};
   F.TooltipView = Backbone.View.extend({
     el: '.dot-tooltip',
     initialize: function(){
-      F.on('locationupdatebyview', this.render, this);
-      F.on('locationupdatebyrouter', this.render, this);
-      this.model.bind('change', this.render, this);
+      F.on('locationupdatebyview', this.onLocationUpdate, this);
+      F.on('locationupdatebyrouter', this.onLocationUpdate, this);
+      this.collection.bind('change', this.render, this);
     },
-    render: function(model){
-      var percent = this.model.indexOf(model) / this.model.length;
+    onLocationUpdate: function(model) {
+      this.locationModel = model;
+      this.render();
+    },
+    render: function(){
+      var percent = this.collection.indexOf(this.locationModel) / this.collection.length;
 
       this.$el
         .css('left', (percent*100) + '%')
-        .html('<strong>' + model.get('feedback').length + '</strong> Comments')
+        .html('<strong>' + this.locationModel.get('feedback').length + '</strong> Comments')
         .show();
     }
   });
@@ -186,23 +199,27 @@ var Fitzgerald = Fitzgerald || {};
     el: '.dot-slider',
     initialize: function(){
       // Render thyself when the data shows up
-      this.model.bind('reset', this.render, this);
+      this.collection.bind('reset', this.render, this);
 
-      F.on('locationupdatebyrouter', this.setPosition, this);
+      F.on('locationupdatebyrouter', this.onLocationUpdate, this);
+    },
+    onLocationUpdate: function(model) {
+      this.locationModel = model;
+      this.setPosition();
     },
     render: function() {
       var self = this;
 
       // Setup slider
       self.$el.slider({
-        max: self.model.length,
+        max: self.collection.length,
         slide: function(evt, ui) {
-          F.trigger('locationupdatebyview', self.model.at(ui.value));
+          F.trigger('locationupdatebyview', self.collection.at(ui.value));
         },
         stop: function(evt, ui) {
           // Update the cursor icon
           $(ui.handle).removeClass('grabbed');
-          self.router.navigate(self.model.at(ui.value).get('id'));
+          self.router.navigate(self.collection.at(ui.value).get('id').toString());
         }
       });
 
@@ -211,17 +228,17 @@ var Fitzgerald = Fitzgerald || {};
         $(this).addClass('grabbed');
       });
 
-      // Update location to the first intersection
-      F.trigger('locationupdatebyview', self.model.at(0));
+      // Update to the first location
+      F.trigger('locationupdatebyview', self.collection.at(0));
 
       // Setup routing
       self.router = new F.Router({
-        model: self.model
+        collection: self.collection
       });
       Backbone.history.start();
     },
-    setPosition: function(model){
-      this.$el.slider('value', this.model.indexOf(model));
+    setPosition: function(){
+      this.$el.slider('value', this.collection.indexOf(this.locationModel));
     }
   });
 
@@ -231,17 +248,17 @@ var Fitzgerald = Fitzgerald || {};
       _.extend(F, Backbone.Events);
 
       // Init the collection
-      this.model = new F.IntersectionCollection();
+      this.collection = new F.LocationCollection();
 
       // Init the views
-      this.mapSlider = new F.NavigatorView({ model: this.model });
-      this.tooltip = new F.TooltipView({ model: this.model });
-      this.feedbackActivity = new F.FeedbackActivityView({ model: this.model });
-      this.feedbackList = new F.FeedbackListView({ model: this.model });
-      this.addFeedback = new F.AddFeedbackView({ model: this.model });
+      this.mapSlider = new F.NavigatorView({ collection: this.collection });
+      this.tooltip = new F.TooltipView({ collection: this.collection });
+      this.feedbackActivity = new F.FeedbackActivityView({ collection: this.collection });
+      this.feedbackList = new F.FeedbackListView({ collection: this.collection });
+      this.addFeedback = new F.AddFeedbackView({ collection: this.collection });
 
-      // Fetch the intersection records
-      this.model.fetch();
+      // Fetch the location records
+      this.collection.fetch();
     }
   });
 
