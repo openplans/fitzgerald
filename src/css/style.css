@@ -26,7 +26,7 @@ body {
 /* Fitzgerald */
 #dot-container {
   position: relative;
-  background: #ccc url(stickies.png) right top no-repeat scroll;
+/*  background: #ccc url(stickies.png) right top no-repeat scroll;*/
 }
 
 .dot-title {
@@ -50,7 +50,7 @@ body {
   width: 204px;
   position: absolute;
   top: 8px;
-  right: 8px;
+  right: 0.875em;
   z-index: 999;
   cursor: pointer;
      -moz-border-radius: 6px;
@@ -62,7 +62,7 @@ body {
 }
 
 #dot-sv {
-  width: 460px;
+  width: 680px;
   height: 350px;
   border:0;
   float: left;
@@ -71,10 +71,10 @@ body {
 /* Feedback */
 .dot-feedback-container {
   overflow: auto;
-  width: 222px;
+  width: 220px;
   height: 350px;
   float: right;
-  margin-left: -2px;
+  margin-left: -220px;
 }
 
 .dot-feedback {
@@ -87,7 +87,7 @@ body {
   font-size: 1.5em;
   padding: 0.5em;
   min-height: 1.2em;
-  margin: 0.6em 0;
+  margin: 0.6em 0.6em 0.6em 0;
   cursor: pointer;
      -moz-box-shadow: -5px 0px 5px rgba(0,0,0,0.25);
   -webkit-box-shadow: -5px 0px 5px rgba(0,0,0,0.25);
