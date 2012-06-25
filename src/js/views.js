@@ -69,7 +69,6 @@ var Fitzgerald = Fitzgerald || {};
       F.on('locationupdatebyview', this.onLocationUpdate, this);
       F.on('locationupdatebyrouter', this.onLocationUpdate, this);
       F.on('povupdatebyview', this.setPov, this);
-
     },
     onLocationUpdate: function(model) {
       this.locationModel = model;
@@ -98,10 +97,16 @@ var Fitzgerald = Fitzgerald || {};
       this.$dialog.dialog('open');
     },
     save: function(feedback) {
-      var allFeedback = this.locationModel.get('feedback');
+      var self = this;
+      feedback.intersection_id = self.locationModel.get('id');
 
-      allFeedback.push(feedback);
-      this.locationModel.save({'feedback': allFeedback}, {wait: true});
+      new F.FeedbackModel().save(feedback, {
+        success: function (model, response) {
+          var allFeedback = self.locationModel.get('feedback').slice();
+          allFeedback.push(feedback);
+          self.locationModel.set({'feedback': allFeedback});
+        }
+      });
     }
   });
 
