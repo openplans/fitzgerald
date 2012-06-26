@@ -252,6 +252,7 @@ var Fitzgerald = Fitzgerald || {};
     },
     onLocationUpdate: function(model) {
       this.locationModel = model;
+      this.router.navigate(this.locationModel.get('id').toString());
       this.setPosition();
     },
     render: function() {
