@@ -3,6 +3,10 @@ var Fitzgerald = Fitzgerald || {};
 (function(F, $) {
   // To help out the Wordpress PHP backend
   Backbone.emulateHTTP = true;
+  // Disable caching for all ajax calls
+  $.ajaxSetup ({
+    cache: false
+  });
 
   var collectionOptions, feedbackOptions;
   // Define the Location model
