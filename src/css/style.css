@@ -232,10 +232,8 @@
 .dot-tooltip {
   display: none;
   position: absolute;
-  top:153px;
   z-index:999;
   padding: 5px;
-  background-color:#4b99da;
   color:#fff;
   width:8em;
   text-align:center;
@@ -256,24 +254,13 @@
   transition: all 100ms ease-in-out;
 }
 
-.dot-tooltip strong {
-  font-weight: bold;
-}
-
 .dot-tooltip:before {
   content:"\0020";
   position: absolute;
-  left:50%;
-  top:-6px;
-  margin-left:-5px;
   height:10px;
   width:10px;
   z-index:999;
-  background-color:#4b99da;
   display: block;
-
-  border-left:1px solid #fff;
-  border-top:1px solid #fff;
 
   transform: rotate(45deg);
   -ms-transform: rotate(45deg); /* IE 9 */
@@ -282,3 +269,36 @@
   -moz-transform: rotate(45deg); /* Firefox */
 }
 
+.dot-tooltip.dot-tooltip-comments {
+  background-color:#4b99da;
+  top:153px;
+}
+
+.dot-tooltip.dot-tooltip-comments:before {
+  border-left:1px solid #fff;
+  border-top:1px solid #fff;
+  background-color:#4b99da;
+  left:50%;
+  top:-6px;
+  margin-left:-5px;
+}
+
+.dot-tooltip.dot-tooltip-youarehere {
+  top:30px;
+  background-color:#e539a1;
+}
+
+.dot-tooltip.dot-tooltip-youarehere:before {
+  border-right:1px solid #fff;
+  border-bottom:1px solid #fff;
+
+  background-color:#e539a1;
+  left:50%;
+  bottom:-6px;
+  margin-left:-5px;
+}
+
+
+.dot-tooltip strong {
+  font-weight: bold;
+}
