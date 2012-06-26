@@ -149,19 +149,24 @@ var Fitzgerald = Fitzgerald || {};
   });
 
   F.FeedbackListView = Backbone.View.extend({
-    el: '.dot-feedback',
+    el: '.dot-feedback-container',
     colors: ['yellow', 'blue', 'magenta'],
     initialize: function(){
       var self = this;
+      self.$list = self.$el.find('.dot-feedback');
+      self.$next = self.$el.find('.dot-feedback-nav-next');
+      self.$prev = self.$el.find('.dot-feedback-nav-prev');
+      self.topCommentIndex = 0;
+
 
       // Update the list if we move locations
-      F.on('locationupdatebyslider', this.onLocationUpdate, this);
-      F.on('locationupdatebyrouter', this.onLocationUpdate, this);
-      F.on('locationupdatebybargraph', this.onLocationUpdate, this);
+      F.on('locationupdatebyslider', self.onLocationUpdate, self);
+      F.on('locationupdatebyrouter', self.onLocationUpdate, self);
+      F.on('locationupdatebybargraph', self.onLocationUpdate, self);
       // Update the list if the model changes
-      this.collection.bind('change', this.render, this);
+      self.collection.bind('change', self.render, self);
 
-      this.$el.delegate('li', 'click', function(evt){
+      self.$list.delegate('li', 'click', function(evt){
         evt.preventDefault();
 
         var feedbackIndex = parseInt($(this).attr('data-index'), 10);
@@ -169,6 +174,23 @@ var Fitzgerald = Fitzgerald || {};
 
         self.focusOnFeedback(feedback);
       });
+
+      // Set a class on the "next" comment, supports looping
+      self.$next.click(function(evt){
+        evt.preventDefault();
+        var feedback = self.locationModel.get('feedback'),
+            index = (self.topCommentIndex+1 >= feedback.length) ? 0 : self.topCommentIndex+1;
+        self.setTopFeedback(index);
+      });
+
+      // Set a class on the "previous" comment, supports looping
+      self.$prev.click(function(evt){
+        evt.preventDefault();
+        var feedback = self.locationModel.get('feedback'),
+            index = (self.topCommentIndex-1 < 0) ? feedback.length-1 : self.topCommentIndex-1;
+        self.setTopFeedback(index);
+      });
+
     },
     onLocationUpdate: function(model) {
       this.locationModel = model;
@@ -176,15 +198,23 @@ var Fitzgerald = Fitzgerald || {};
     },
     render: function(){
       var self = this;
-      self.$el.empty();
+      self.topCommentIndex = 0;
+      self.$list.empty();
 
       _.each(self.locationModel.get('feedback'), function(attrs, i) {
         var color = self.colors[i % self.colors.length];
-        self.$el.append('<li data-index="'+i+'" class="'+ color +'"><a href="#">' + attrs.desc + '</a></li>');
+        self.$list.append('<li data-index="'+i+'" class="'+ color +'"><a href="#">' + attrs.desc + '</a></li>');
       });
     },
     focusOnFeedback: function(feedback) {
       F.trigger('povupdatebyview', feedback);
+    },
+    setTopFeedback: function(index) {
+        this.topCommentIndex = index;
+        // Remove top class
+        this.$list.find('li').removeClass('dot-feedback-top');
+        // Reset the top class
+        this.$list.find('li[data-index=' + this.topCommentIndex + ']').addClass('dot-feedback-top');
     }
   });
 
