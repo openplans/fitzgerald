@@ -172,7 +172,8 @@
 .dot-feedback-activity {
   position:absolute;
   z-index:1;
-  top:-20px;
+  top:125px;
+  left:2px;
 }
 
 
@@ -191,7 +192,7 @@
   background: transparent url("mapslider-handle.png") no-repeat center center !important;
   width: 49px;
   height:49px;
-  margin-left:-18px;
+  margin-left:-24px;
   margin-top:57px;
   border: none;
   cursor: url(https://mail.google.com/mail/images/2/openhand.cur), default !important;
@@ -210,8 +211,6 @@
 
 .dot-slider-container {
   clear: both;
-/*  padding: 21px 0 0 0;*/
-border-top: 21px solid #fff;
   position: relative;
 }
 
@@ -235,7 +234,6 @@ border-top: 21px solid #fff;
   position: absolute;
   z-index:999;
   padding: 5px;
-  background-color:#4b99da;
   color:#fff;
   width:8em;
   text-align:center;
@@ -256,24 +254,13 @@ border-top: 21px solid #fff;
   transition: all 100ms ease-in-out;
 }
 
-.dot-tooltip strong {
-  font-weight: bold;
-}
-
 .dot-tooltip:before {
   content:"\0020";
   position: absolute;
-  left:50%;
-  top:-6px;
-  margin-left:-5px;
   height:10px;
   width:10px;
   z-index:999;
-  background-color:#4b99da;
   display: block;
-
-  border-left:1px solid #fff;
-  border-top:1px solid #fff;
 
   transform: rotate(45deg);
   -ms-transform: rotate(45deg); /* IE 9 */
@@ -282,3 +269,36 @@ border-top: 21px solid #fff;
   -moz-transform: rotate(45deg); /* Firefox */
 }
 
+.dot-tooltip.dot-tooltip-comments {
+  background-color:#4b99da;
+  top:153px;
+}
+
+.dot-tooltip.dot-tooltip-comments:before {
+  border-left:1px solid #fff;
+  border-top:1px solid #fff;
+  background-color:#4b99da;
+  left:50%;
+  top:-6px;
+  margin-left:-5px;
+}
+
+.dot-tooltip.dot-tooltip-youarehere {
+  top:30px;
+  background-color:#e539a1;
+}
+
+.dot-tooltip.dot-tooltip-youarehere:before {
+  border-right:1px solid #fff;
+  border-bottom:1px solid #fff;
+
+  background-color:#e539a1;
+  left:50%;
+  bottom:-6px;
+  margin-left:-5px;
+}
+
+
+.dot-tooltip strong {
+  font-weight: bold;
+}

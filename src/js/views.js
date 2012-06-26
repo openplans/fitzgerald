@@ -209,7 +209,7 @@ var Fitzgerald = Fitzgerald || {};
           };
 
       config.barWidth = Math.floor((self.$el.parent().width() - ((values.length - 1) * config.barSpacing)) / values.length);
-      self.$el.sparkline($.map(values, function(val, i){ return -val; }), config);
+      self.$el.sparkline(values, config);
       self.$el.bind('sparklineClick', function(evt) {
         var sparkline = evt.sparklines[0],
             region = sparkline.getCurrentRegionFields()[0];
@@ -218,8 +218,28 @@ var Fitzgerald = Fitzgerald || {};
     }
   });
 
+  F.YouarehereTooltipView = Backbone.View.extend({
+    el: '.dot-tooltip-youarehere',
+    initialize: function(){
+      F.on('locationupdatebyslider', this.hide, this);
+      F.on('locationupdatebyrouter', this.onLocationUpdate, this);
+      F.on('locationupdatebybargraph', this.hide, this);
+    },
+    onLocationUpdate: function(model) {
+      this.locationModel = model;
+      this.render();
+    },
+    render: function(){
+      var percent = this.collection.indexOf(this.locationModel) / this.collection.length;
+      this.$el.css('left', (percent*100) + '%').show();
+    },
+    hide: function() {
+      this.$el.hide();
+    }
+  });
+
   F.TooltipView = Backbone.View.extend({
-    el: '.dot-tooltip',
+    el: '.dot-tooltip-comments',
     initialize: function(){
       F.on('locationupdatebyslider', this.onLocationUpdate, this);
       F.on('locationupdatebyrouter', this.onLocationUpdate, this);
@@ -252,15 +272,19 @@ var Fitzgerald = Fitzgerald || {};
     },
     onLocationUpdate: function(model) {
       this.locationModel = model;
-      this.router.navigate(this.locationModel.get('id').toString());
       this.setPosition();
+
+      if (this.router) {
+        this.router.navigate(this.locationModel.get('id').toString());
+      }
     },
     render: function() {
-      var self = this;
+      var self = this,
+          max = self.collection.length-1;
 
       // Setup slider
       self.$el.slider({
-        max: self.collection.length-1,
+        max: max,
         slide: function(evt, ui) {
           F.trigger('locationupdatebyslider', self.collection.at(ui.value));
         },
@@ -277,7 +301,7 @@ var Fitzgerald = Fitzgerald || {};
       });
 
       // Update to the first location
-      F.trigger('locationupdatebyslider', self.collection.at(0));
+      F.trigger('locationupdatebyrouter', self.collection.at(Math.round(max / 2)));
 
       // Setup routing
       self.router = new F.Router({
@@ -301,6 +325,7 @@ var Fitzgerald = Fitzgerald || {};
       // Init the views
       this.mapSlider = new F.NavigatorView({ collection: this.collection });
       this.tooltip = new F.TooltipView({ collection: this.collection });
+      this.youarehere = new F.YouarehereTooltipView({ collection: this.collection });
       this.feedbackActivity = new F.FeedbackActivityView({ collection: this.collection });
       this.feedbackList = new F.FeedbackListView({ collection: this.collection });
       this.addFeedback = new F.AddFeedbackView({
