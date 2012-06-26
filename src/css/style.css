@@ -172,7 +172,8 @@
 .dot-feedback-activity {
   position:absolute;
   z-index:1;
-  top:-20px;
+  top:125px;
+  left:2px;
 }
 
 
@@ -191,7 +192,7 @@
   background: transparent url("mapslider-handle.png") no-repeat center center !important;
   width: 49px;
   height:49px;
-  margin-left:-18px;
+  margin-left:-24px;
   margin-top:57px;
   border: none;
   cursor: url(https://mail.google.com/mail/images/2/openhand.cur), default !important;
@@ -210,8 +211,6 @@
 
 .dot-slider-container {
   clear: both;
-/*  padding: 21px 0 0 0;*/
-border-top: 21px solid #fff;
   position: relative;
 }
 
@@ -233,6 +232,7 @@ border-top: 21px solid #fff;
 .dot-tooltip {
   display: none;
   position: absolute;
+  top:153px;
   z-index:999;
   padding: 5px;
   background-color:#4b99da;

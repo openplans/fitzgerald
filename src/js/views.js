@@ -209,7 +209,7 @@ var Fitzgerald = Fitzgerald || {};
           };
 
       config.barWidth = Math.floor((self.$el.parent().width() - ((values.length - 1) * config.barSpacing)) / values.length);
-      self.$el.sparkline($.map(values, function(val, i){ return -val; }), config);
+      self.$el.sparkline(values, config);
       self.$el.bind('sparklineClick', function(evt) {
         var sparkline = evt.sparklines[0],
             region = sparkline.getCurrentRegionFields()[0];
