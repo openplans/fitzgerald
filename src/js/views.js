@@ -260,7 +260,7 @@ var Fitzgerald = Fitzgerald || {};
 
       // Setup slider
       self.$el.slider({
-        max: self.collection.length,
+        max: self.collection.length-1,
         slide: function(evt, ui) {
           F.trigger('locationupdatebyslider', self.collection.at(ui.value));
         },
