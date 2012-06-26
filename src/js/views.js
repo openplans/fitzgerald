@@ -84,6 +84,7 @@ var Fitzgerald = Fitzgerald || {};
     render: function(){
       // Update the SV position
       this.setPosition(this.locationModel.get('lat'), this.locationModel.get('lng'));
+      this.setPov({ heading: 0, pitch: 0, zoom: 1 });
       this.setTitle('Fourth Avenue and ' + this.locationModel.get('name'));
     },
     setPosition: _.debounce(function(lat, lng) {
