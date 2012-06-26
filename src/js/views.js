@@ -24,6 +24,7 @@ var Fitzgerald = Fitzgerald || {};
           addressControl: false,
           panControl: false,
           clickToGo: false,
+          scrollwheel: false,
           linksControl: false,
           zoomControlOptions: {
             style: google.maps.ZoomControlStyle.SMALL
@@ -41,7 +42,7 @@ var Fitzgerald = Fitzgerald || {};
         },
         survey: [
           {
-            "title": "Show and tell about the problems of this intersection.",
+            "title": "Show us where this intersection can be improved!",
             "name": "desc",
             "id": "dot-survey-desc",
             "class": "dot-survey-item",
@@ -51,8 +52,7 @@ var Fitzgerald = Fitzgerald || {};
       });
 
       self.$dialog = $('.svp-survey').dialog({
-        title: 'Tell us more',
-
+        title: 'Add a Comment',
         autoOpen: false,
         modal: true,
         width:400,
