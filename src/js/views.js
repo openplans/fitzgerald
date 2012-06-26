@@ -22,7 +22,6 @@ var Fitzgerald = Fitzgerald || {};
           position: new google.maps.LatLng(0, 0),
           visible:true,
           addressControl: false,
-          panControl: false,
           clickToGo: false,
           scrollwheel: false,
           linksControl: false,
