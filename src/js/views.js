@@ -83,7 +83,6 @@ var Fitzgerald = Fitzgerald || {};
     render: function(){
       // Update the SV position
       this.setPosition(this.locationModel.get('lat'), this.locationModel.get('lng'));
-      this.setPov({ heading: 0, pitch: 0, zoom: 1 });
       this.setTitle('Fourth Avenue and ' + this.locationModel.get('name'));
     },
     setPosition: _.debounce(function(lat, lng) {
@@ -158,7 +157,6 @@ var Fitzgerald = Fitzgerald || {};
       self.$prev = self.$el.find('.dot-feedback-nav-prev');
       self.topCommentIndex = 0;
 
-
       // Update the list if we move locations
       F.on('locationupdatebyslider', self.onLocationUpdate, self);
       F.on('locationupdatebyrouter', self.onLocationUpdate, self);
@@ -166,55 +164,63 @@ var Fitzgerald = Fitzgerald || {};
       // Update the list if the model changes
       self.collection.bind('change', self.render, self);
 
+      // Click the comment
       self.$list.delegate('li', 'click', function(evt){
         evt.preventDefault();
+        var feedbackList = self.locationModel.get('feedback'),
+            index = parseInt($(this).attr('data-index'), 10);
 
-        var feedbackIndex = parseInt($(this).attr('data-index'), 10);
-        var feedback = self.locationModel.get('feedback')[feedbackIndex];
-
-        self.focusOnFeedback(feedback);
+        self.focusOnFeedback(feedbackList, index);
       });
 
-      // Set a class on the "next" comment, supports looping
+      // Set a class on the "next" comment, supports looping.
+      // Assumes most recent feedback is at the end, so next
+      // feedback is older (smaller index).
       self.$next.click(function(evt){
         evt.preventDefault();
-        var feedback = self.locationModel.get('feedback'),
-            index = (self.topCommentIndex+1 >= feedback.length) ? 0 : self.topCommentIndex+1;
-        self.setTopFeedback(index);
+        var feedbackList = self.locationModel.get('feedback'),
+            index = (self.topCommentIndex-1 < 0) ? feedbackList.length-1 : self.topCommentIndex-1;
+
+        self.focusOnFeedback(feedbackList, index);
       });
 
-      // Set a class on the "previous" comment, supports looping
+      // Set a class on the "previous" comment, supports looping.
+      // Assumes most recent feedback is at the end, so previous
+      // feedback is newer (larger index).
       self.$prev.click(function(evt){
         evt.preventDefault();
-        var feedback = self.locationModel.get('feedback'),
-            index = (self.topCommentIndex-1 < 0) ? feedback.length-1 : self.topCommentIndex-1;
-        self.setTopFeedback(index);
-      });
+        var feedbackList = self.locationModel.get('feedback'),
+            index = (self.topCommentIndex+1 >= feedbackList.length) ? 0 : self.topCommentIndex+1;
 
+        self.focusOnFeedback(feedbackList, index);
+      });
     },
     onLocationUpdate: function(model) {
       this.locationModel = model;
       this.render();
     },
     render: function(){
-      var self = this;
-      self.topCommentIndex = 0;
+      var self = this,
+          feedbackList = self.locationModel.get('feedback');
       self.$list.empty();
 
-      _.each(self.locationModel.get('feedback'), function(attrs, i) {
+      _.each(feedbackList, function(attrs, i) {
         var color = self.colors[i % self.colors.length];
         self.$list.append('<li data-index="'+i+'" class="'+ color +'"><a href="#">' + attrs.desc + '</a></li>');
       });
+
+      self.focusOnFeedback(feedbackList, feedbackList.length-1);
     },
-    focusOnFeedback: function(feedback) {
-      F.trigger('povupdatebyview', feedback);
-    },
-    setTopFeedback: function(index) {
+    focusOnFeedback: function(feedbackList, index) {
+      if (feedbackList.length > 0) {
         this.topCommentIndex = index;
         // Remove top class
         this.$list.find('li').removeClass('dot-feedback-top');
         // Reset the top class
         this.$list.find('li[data-index=' + this.topCommentIndex + ']').addClass('dot-feedback-top');
+        // Adjust Street View direction
+        F.trigger('povupdatebyview', feedbackList[index]);
+      }
     }
   });
 
