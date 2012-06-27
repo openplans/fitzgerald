@@ -100,6 +100,7 @@ var Fitzgerald = Fitzgerald || {};
     },
     showForm: function() {
       this.svp.reset();
+      this.updateCharCount();
       this.$dialog.dialog('open');
     },
     save: function(feedback) {
@@ -115,35 +116,36 @@ var Fitzgerald = Fitzgerald || {};
       });
     },
     initCharCounter: function() {
-      var self = this,
-          $saveBtn = $('#dialog-save');
+      var self = this;
+      this.$saveBtn = $('#dialog-save');
+      this.$textarea = $('#dot-survey-desc');
+      this.$counter = $('<div class="dot-counter">counter</div>').insertAfter(this.$textarea);
 
-      self.$textarea = $('#dot-survey-desc');
-      self.$counter = $('<div class="dot-counter">counter</div>').insertAfter(self.$textarea);
+      this.$textarea.keyup(function() { self.updateCharCount.call(self); });
+      this.$textarea.change(function() { self.updateCharCount.call(self); });
+
+      this.updateCharCount();
+    },
+    updateCharCount: function() {
+      var available,
+          self = this;
 
       function charsLeft() {
         var chars = self.$textarea.val().length;
         return self.options.maxChars - chars;
       }
 
-      function onChange() {
-        var available = charsLeft();
-        // Update counter
-        self.$counter.html(available);
+      available = charsLeft();
+      // Update counter
+      self.$counter.html(available);
 
-        if (available >= 0) {
-          // Enable
-          $saveBtn.removeAttr('disabled');
-        } else {
-          // Disable
-          $saveBtn.attr('disabled', 'disabled');
-        }
+      if (available >= 0) {
+        // Enable
+        self.$saveBtn.removeAttr('disabled');
+      } else {
+        // Disable
+        self.$saveBtn.attr('disabled', 'disabled');
       }
-
-      self.$textarea.keyup(onChange);
-      self.$textarea.change(onChange);
-
-      onChange();
     }
   });
 
