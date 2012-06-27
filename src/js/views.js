@@ -207,7 +207,16 @@ var Fitzgerald = Fitzgerald || {};
 
       _.each(feedbackList, function(attrs, i) {
         var color = self.colors[i % self.colors.length];
-        self.$list.append('<li data-index="'+i+'" class="'+ color +'"><a href="#">' + attrs.desc + '</a></li>');
+            charClass = '';
+
+        if (attrs.desc.length < 50) {
+          charClass = 'lt50';
+        } else if (attrs.desc.length < 100) {
+          charClass = 'lt100';
+        }
+
+        self.$list.append('<li data-index="'+i+'" class="'+ color +'"><span class="'+charClass+'">' +
+          '<a href="#">'+ attrs.desc + '</a></span></li>');
       });
 
       if (feedbackList.length > 0) {
