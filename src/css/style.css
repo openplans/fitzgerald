@@ -90,13 +90,33 @@
 .dot-feedback-nav {
   position: relative;
   z-index: 999;
+  top: -12px;
+  margin: 0 75px;
 }
 
+.dot-feedback-nav-prev a,
+.dot-feedback-nav-next a {
+  float: left;
+  background: url(prev.png) left top no-repeat scroll;
+  width: 41px;
+  height: 41px;
+  text-indent: -9999px;
+}
+.dot-feedback-nav-prev a {}
+.dot-feedback-nav-next a {
+  float: right;
+  background-image: url(next.png);
+}
+
+.dot-feedback-nav-prev a:hover,
+.dot-feedback-nav-next a:hover {
+  background-position: left bottom;
+}
 
 
 .dot-feedback {
   overflow: visible;
-  height: 324px;
+  height: 290px;
   padding: 0;
   margin: 0;
   list-style: none;
@@ -108,7 +128,7 @@
   position: absolute;
   top: 60px;
   right: -10px;
-  bottom: 45px;
+  bottom: 15px;
   left: 10px;
   font-family: 'Swanky and Moo Moo', Verdana, sans-serif;
   font-size: 1.5em;
@@ -130,7 +150,7 @@
 .dot-feedback li:nth-child(even) {
   top: 63px;
   right: 0;
-  bottom: 42px;
+  bottom: 12px;
   left: 0;
       -ms-transform: rotate(-2deg);
   -webkit-transform: rotate(-2deg);
@@ -143,7 +163,7 @@
 .dot-feedback li:nth-child(5n+1) {
   top: 55px;
   right: -5px;
-  bottom: 50px;
+  bottom: 20px;
   left: 5px;
       -ms-transform: rotate(-4deg);
   -webkit-transform: rotate(-4deg);
