@@ -83,8 +83,7 @@ var Fitzgerald = Fitzgerald || {};
     render: function(){
       // Update the SV position
       this.setPosition(this.locationModel.get('lat'), this.locationModel.get('lng'));
-      this.setPov({ heading: 0, pitch: 0, zoom: 1 });
-      this.setTitle('Fourth Avenue and ' + this.locationModel.get('name'));
+      this.setTitle('Fourth Ave. &amp; ' + this.locationModel.get('name'));
     },
     setPosition: _.debounce(function(lat, lng) {
       var latLng = new google.maps.LatLng(lat, lng);
@@ -149,25 +148,50 @@ var Fitzgerald = Fitzgerald || {};
   });
 
   F.FeedbackListView = Backbone.View.extend({
-    el: '.dot-feedback',
+    el: '.dot-feedback-container',
     colors: ['yellow', 'blue', 'magenta'],
     initialize: function(){
       var self = this;
+      self.$list = self.$el.find('.dot-feedback');
+      self.$nav = self.$el.find('.dot-feedback-nav');
+      self.topCommentIndex = 0;
 
       // Update the list if we move locations
-      F.on('locationupdatebyslider', this.onLocationUpdate, this);
-      F.on('locationupdatebyrouter', this.onLocationUpdate, this);
-      F.on('locationupdatebybargraph', this.onLocationUpdate, this);
+      F.on('locationupdatebyslider', self.onLocationUpdate, self);
+      F.on('locationupdatebyrouter', self.onLocationUpdate, self);
+      F.on('locationupdatebybargraph', self.onLocationUpdate, self);
       // Update the list if the model changes
-      this.collection.bind('change', this.render, this);
+      self.collection.bind('change', self.render, self);
 
-      this.$el.delegate('li', 'click', function(evt){
+      // Click the comment
+      self.$list.delegate('li', 'click', function(evt){
         evt.preventDefault();
+        var feedbackList = self.locationModel.get('feedback'),
+            index = parseInt($(this).attr('data-index'), 10);
 
-        var feedbackIndex = parseInt($(this).attr('data-index'), 10);
-        var feedback = self.locationModel.get('feedback')[feedbackIndex];
+        self.focusOnFeedback(feedbackList, index);
+      });
 
-        self.focusOnFeedback(feedback);
+      // Set a class on the "next" comment, supports looping.
+      // Assumes most recent feedback is at the end, so next
+      // feedback is older (smaller index).
+      self.$el.delegate('.dot-feedback-nav-next', 'click', function(evt){
+        evt.preventDefault();
+        var feedbackList = self.locationModel.get('feedback'),
+            index = (self.topCommentIndex-1 < 0) ? feedbackList.length-1 : self.topCommentIndex-1;
+
+        self.focusOnFeedback(feedbackList, index);
+      });
+
+      // Set a class on the "previous" comment, supports looping.
+      // Assumes most recent feedback is at the end, so previous
+      // feedback is newer (larger index).
+      self.$el.delegate('.dot-feedback-nav-prev', 'click', function(evt){
+        evt.preventDefault();
+        var feedbackList = self.locationModel.get('feedback'),
+            index = (self.topCommentIndex+1 >= feedbackList.length) ? 0 : self.topCommentIndex+1;
+
+        self.focusOnFeedback(feedbackList, index);
       });
     },
     onLocationUpdate: function(model) {
@@ -175,16 +199,32 @@ var Fitzgerald = Fitzgerald || {};
       this.render();
     },
     render: function(){
-      var self = this;
-      self.$el.empty();
+      var self = this,
+          feedbackList = self.locationModel.get('feedback');
+      self.$list.empty();
 
-      _.each(self.locationModel.get('feedback'), function(attrs, i) {
+      _.each(feedbackList, function(attrs, i) {
         var color = self.colors[i % self.colors.length];
-        self.$el.append('<li data-index="'+i+'" class="'+ color +'"><a href="#">' + attrs.desc + '</a></li>');
+        self.$list.append('<li data-index="'+i+'" class="'+ color +'"><a href="#">' + attrs.desc + '</a></li>');
       });
+
+      if (feedbackList.length > 0) {
+        self.focusOnFeedback(feedbackList, feedbackList.length-1);
+        self.$nav.show();
+        self.$list.show();
+      } else {
+        self.$nav.hide();
+        self.$list.hide();
+      }
     },
-    focusOnFeedback: function(feedback) {
-      F.trigger('povupdatebyview', feedback);
+    focusOnFeedback: function(feedbackList, index) {
+      this.topCommentIndex = index;
+      // Remove top class
+      this.$list.find('li').removeClass('dot-feedback-top');
+      // Reset the top class
+      this.$list.find('li[data-index=' + this.topCommentIndex + ']').addClass('dot-feedback-top');
+      // Adjust Street View direction
+      F.trigger('povupdatebyview', feedbackList[index]);
     }
   });
 

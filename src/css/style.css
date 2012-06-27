@@ -87,6 +87,13 @@
   width: 240px;
 }
 
+.dot-feedback-nav {
+  position: relative;
+  z-index: 999;
+}
+
+
+
 .dot-feedback {
   overflow: visible;
   height: 324px;
@@ -114,6 +121,10 @@
      -moz-box-shadow: 0 0 5px rgba(0,0,0,0.25);
   -webkit-box-shadow: 0 0 5px rgba(0,0,0,0.25);
           box-shadow: 0 0 5px rgba(0,0,0,0.25);
+}
+
+.dot-feedback li.dot-feedback-top {
+  z-index: 999;
 }
 
 .dot-feedback li:nth-child(even) {
