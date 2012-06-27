@@ -25,6 +25,7 @@ var Fitzgerald = Fitzgerald || {};
           clickToGo: false,
           scrollwheel: false,
           linksControl: false,
+          disableDoubleClickZoom: false,
           zoomControlOptions: {
             style: google.maps.ZoomControlStyle.SMALL
           }
