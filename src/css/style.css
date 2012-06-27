@@ -93,24 +93,30 @@
 .dot-feedback-nav {
   position: relative;
   z-index: 999;
-  top: -12px;
-  margin: 0 75px;
+  margin: 0 50px;
+  text-align: center;
 }
-
+.dot-feedback-nav-state {
+  background: #fff;
+  background: rgba(255,255,255,0.85);
+  padding: 0.25em 0.5em;
+}
 .dot-feedback-nav-prev a,
 .dot-feedback-nav-next a {
   float: left;
   background: url(prev.png) left top no-repeat scroll;
   width: 41px;
   height: 41px;
+  text-align: left;
   text-indent: -9999px;
+  position: relative;
+  top: -14px;
 }
 .dot-feedback-nav-prev a {}
 .dot-feedback-nav-next a {
   float: right;
   background-image: url(next.png);
 }
-
 .dot-feedback-nav-prev a:hover,
 .dot-feedback-nav-next a:hover {
   background-position: left bottom;
