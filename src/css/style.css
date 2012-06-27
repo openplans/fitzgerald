@@ -237,6 +237,18 @@
   color:#444;
 }
 
+.dot-feedback li .lt100 {
+  display: block;
+  padding: 0.2em;
+  font-size: 1.25em;
+}
+.dot-feedback li .lt50 {
+  display: block;
+  padding: 0.5em 0;
+  font-size: 1.5em;
+  text-align: center;
+}
+
 /* Feedback Activity Graph */
 .dot-feedback-activity {
   position:absolute;
