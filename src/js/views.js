@@ -83,7 +83,7 @@ var Fitzgerald = Fitzgerald || {};
     render: function(){
       // Update the SV position
       this.setPosition(this.locationModel.get('lat'), this.locationModel.get('lng'));
-      this.setTitle('Fourth Avenue and ' + this.locationModel.get('name'));
+      this.setTitle('Fourth Ave. &amp; ' + this.locationModel.get('name'));
     },
     setPosition: _.debounce(function(lat, lng) {
       var latLng = new google.maps.LatLng(lat, lng);
