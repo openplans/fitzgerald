@@ -209,18 +209,21 @@ var Fitzgerald = Fitzgerald || {};
         self.$list.append('<li data-index="'+i+'" class="'+ color +'"><a href="#">' + attrs.desc + '</a></li>');
       });
 
-      self.focusOnFeedback(feedbackList, feedbackList.length-1);
+      if (feedbackList.length > 0) {
+        self.focusOnFeedback(feedbackList, feedbackList.length-1);
+        self.$next.parent().show();
+      } else {
+        self.$next.parent().hide();
+      }
     },
     focusOnFeedback: function(feedbackList, index) {
-      if (feedbackList.length > 0) {
-        this.topCommentIndex = index;
-        // Remove top class
-        this.$list.find('li').removeClass('dot-feedback-top');
-        // Reset the top class
-        this.$list.find('li[data-index=' + this.topCommentIndex + ']').addClass('dot-feedback-top');
-        // Adjust Street View direction
-        F.trigger('povupdatebyview', feedbackList[index]);
-      }
+      this.topCommentIndex = index;
+      // Remove top class
+      this.$list.find('li').removeClass('dot-feedback-top');
+      // Reset the top class
+      this.$list.find('li[data-index=' + this.topCommentIndex + ']').addClass('dot-feedback-top');
+      // Adjust Street View direction
+      F.trigger('povupdatebyview', feedbackList[index]);
     }
   });
 
