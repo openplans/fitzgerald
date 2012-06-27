@@ -203,7 +203,8 @@ var Fitzgerald = Fitzgerald || {};
     },
     render: function(){
       var self = this,
-          feedbackList = self.locationModel.get('feedback');
+          feedbackList = self.locationModel.get('feedback'),
+          feedbackLen = feedbackList.length;
       self.$list.empty();
 
       _.each(feedbackList, function(attrs, i) {
@@ -220,16 +221,17 @@ var Fitzgerald = Fitzgerald || {};
           '<a href="#">'+ attrs.desc + '</a></span></li>');
       });
 
-      if (feedbackList.length > 0) {
-        self.focusOnFeedback(feedbackList, feedbackList.length-1);
+      if (feedbackLen > 0) {
+        self.focusOnFeedback(feedbackList, feedbackLen-1);
         self.$list.show();
       } else {
         self.$list.hide();
       }
 
-      if (feedbackList.length > 1) self.$nav.show(); else self.$nav.hide();
+      if (feedbackLen > 1) self.$nav.show(); else self.$nav.hide();
     },
     focusOnFeedback: function(feedbackList, index) {
+      var feedbackLen = feedbackList.length;
       this.topCommentIndex = index;
       // Remove top class
       this.$list.find('li').removeClass('dot-feedback-top');
@@ -237,6 +239,8 @@ var Fitzgerald = Fitzgerald || {};
       this.$list.find('li[data-index=' + this.topCommentIndex + ']').addClass('dot-feedback-top');
       // Adjust Street View direction
       F.trigger('povupdatebyview', feedbackList[index]);
+      // Set the state (1 of 12) or whatever
+      this.$nav.find('.dot-feedback-nav-state').html(feedbackLen-index+ ' of ' + feedbackLen);
     }
   });
 
