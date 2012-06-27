@@ -212,12 +212,12 @@ var Fitzgerald = Fitzgerald || {};
 
       if (feedbackList.length > 0) {
         self.focusOnFeedback(feedbackList, feedbackList.length-1);
-        self.$nav.show();
         self.$list.show();
       } else {
-        self.$nav.hide();
         self.$list.hide();
       }
+
+      if (feedbackList.length > 1) self.$nav.show(); else self.$nav.hide();
     },
     focusOnFeedback: function(feedbackList, index) {
       this.topCommentIndex = index;
