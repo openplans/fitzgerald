@@ -153,8 +153,7 @@ var Fitzgerald = Fitzgerald || {};
     initialize: function(){
       var self = this;
       self.$list = self.$el.find('.dot-feedback');
-      self.$next = self.$el.find('.dot-feedback-nav-next');
-      self.$prev = self.$el.find('.dot-feedback-nav-prev');
+      self.$nav = self.$el.find('.dot-feedback-nav');
       self.topCommentIndex = 0;
 
       // Update the list if we move locations
@@ -176,7 +175,7 @@ var Fitzgerald = Fitzgerald || {};
       // Set a class on the "next" comment, supports looping.
       // Assumes most recent feedback is at the end, so next
       // feedback is older (smaller index).
-      self.$next.click(function(evt){
+      self.$el.delegate('.dot-feedback-nav-next', 'click', function(evt){
         evt.preventDefault();
         var feedbackList = self.locationModel.get('feedback'),
             index = (self.topCommentIndex-1 < 0) ? feedbackList.length-1 : self.topCommentIndex-1;
@@ -187,7 +186,7 @@ var Fitzgerald = Fitzgerald || {};
       // Set a class on the "previous" comment, supports looping.
       // Assumes most recent feedback is at the end, so previous
       // feedback is newer (larger index).
-      self.$prev.click(function(evt){
+      self.$el.delegate('.dot-feedback-nav-prev', 'click', function(evt){
         evt.preventDefault();
         var feedbackList = self.locationModel.get('feedback'),
             index = (self.topCommentIndex+1 >= feedbackList.length) ? 0 : self.topCommentIndex+1;
@@ -211,9 +210,9 @@ var Fitzgerald = Fitzgerald || {};
 
       if (feedbackList.length > 0) {
         self.focusOnFeedback(feedbackList, feedbackList.length-1);
-        self.$next.parent().show();
+        self.$nav.show();
       } else {
-        self.$next.parent().hide();
+        self.$nav.hide();
       }
     },
     focusOnFeedback: function(feedbackList, index) {
