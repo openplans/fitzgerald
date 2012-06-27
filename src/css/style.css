@@ -44,6 +44,9 @@
 
   ;
 }
+.ie9 .dot-title {
+  background: rgba(255,255,255,0.85);
+}
 
 #dot-add-feedback {
   font-size: 1.25em;
