@@ -93,7 +93,7 @@
 .dot-feedback-nav {
   position: relative;
   z-index: 999;
-  margin: 0 50px;
+  margin: 0 40px;
   text-align: center;
 }
 .dot-feedback-nav-state {
@@ -107,15 +107,16 @@
   background: url(prev.png) left top no-repeat scroll;
   width: 41px;
   height: 41px;
+  margin: 0 -41px 0 0;
   text-align: left;
   text-indent: -9999px;
   position: relative;
   top: -14px;
 }
-.dot-feedback-nav-prev a {}
 .dot-feedback-nav-next a {
   float: right;
   background-image: url(next.png);
+  margin: 0 0 0 -41px;
 }
 .dot-feedback-nav-prev a:hover,
 .dot-feedback-nav-next a:hover {
