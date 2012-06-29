@@ -80,7 +80,11 @@ var Fitzgerald = Fitzgerald || {};
     onLocationUpdate: function(model) {
       this.locationModel = model;
       this.render();
-      this.setZoom(1);
+
+      var feedbackList = this.locationModel.get('feedback');
+      if (!feedbackList || feedbackList.length === 0) {
+        this.setZoom(1);
+      }
     },
     render: function(){
       // Update the SV position
