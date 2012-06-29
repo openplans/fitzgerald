@@ -107,6 +107,11 @@ var StreetViewPlus = (function($) {
       });
     };
 
+    self.setZoom = function(zoom) {
+      var pov = panorama.getPov();
+      self.setPov(pov.heading, pov.pitch, zoom);
+    };
+
     self.setSurvey = function(survey) {
       options.survey = survey;
       initSurvey($surveyForm);

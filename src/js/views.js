@@ -80,6 +80,7 @@ var Fitzgerald = Fitzgerald || {};
     onLocationUpdate: function(model) {
       this.locationModel = model;
       this.render();
+      this.setZoom(1);
     },
     render: function(){
       // Update the SV position
@@ -95,6 +96,9 @@ var Fitzgerald = Fitzgerald || {};
         parseFloat(config.heading),
         parseFloat(config.pitch),
         parseInt(config.zoom, 10));
+    },
+    setZoom: function(z) {
+      this.svp.setZoom(parseInt(z, 10));
     },
     setTitle: function(title) {
       $(this.titleEl).html(title);
