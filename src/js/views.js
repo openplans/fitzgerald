@@ -108,7 +108,7 @@ var Fitzgerald = Fitzgerald || {};
       $(this.titleEl).html(title);
     },
     showForm: function() {
-      this.svp.reset();
+      $('.dot-survey-item').val('');
       this.updateCharCount();
       this.$dialog.dialog('open');
     },
