@@ -83,7 +83,11 @@ var Fitzgerald = Fitzgerald || {};
 
       var feedbackList = this.locationModel.get('feedback');
       if (!feedbackList || feedbackList.length === 0) {
-        this.setZoom(1);
+        this.setPov({
+          heading: 0,
+          pitch: 0,
+          zoom: 1
+        });
       }
     },
     render: function(){
