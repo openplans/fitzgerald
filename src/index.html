@@ -26,6 +26,10 @@
 
     <div class="dot-feedback-container">
       <button id="dot-add-feedback">Add a Comment</button>
+      <form class="dot-survey-form">
+        <label for="dot-survey-desc">Show us where this intersection can be improved!</label>
+        <textarea id="dot-survey-desc" class="dot-survey-item" name="desc"></textarea>
+      </form>
       <ul class="dot-feedback"></ul>
       <div class="dot-feedback-nav">
         <span class="dot-feedback-nav-prev"><a href="#">prev</a></span>
@@ -51,7 +55,6 @@
   <script src="js/lib/backbone-0.9.2.min.js"></script>
   <script src="js/lib/backbone.localStorage-min.js"></script>
 
-  <script src="js/streetview_plus.js"></script>
   <script src="js/util.js"></script>
   <script src="js/routes.js"></script>
   <script src="js/models.js"></script>
@@ -98,9 +101,12 @@
           }
         }
       });
-      // this.addFeedback = new Fitzgerald.FeedbackFormView({
-      //   collection: this.collection, maxChars: 200
-      // });
+      this.feedbackForm = new Fitzgerald.FeedbackFormView({
+        el: '.dot-survey-form',
+        showFormEl: '#dot-add-feedback',
+        collection: this.collection,
+        maxChars: 200
+      });
 
       this.locationTitle = new Fitzgerald.LocationTitleView({
         el: '.dot-title',

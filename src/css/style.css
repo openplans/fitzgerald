@@ -25,7 +25,7 @@
   line-height: 1.5;
   background: #fff;
   background: rgba(255,255,255,0);
-  text-shadow: 
+  text-shadow:
    0 1px 0 rgba(255,255,255,1),
    0 -1px 0 rgba(255,255,255,1),
    -1px 0 0 rgba(255,255,255,1),
@@ -69,6 +69,10 @@
      -moz-box-shadow: 0 0px 10px rgba(0,0,0,0.5);
   -webkit-box-shadow: 0 0px 10px rgba(0,0,0,0.5);
           box-shadow: 0 0px 10px rgba(0,0,0,0.5);
+}
+
+.dot-survey-form {
+  display: none;
 }
 
 #dot-sv {
@@ -289,6 +293,7 @@
   border: none;
   cursor: url(https://mail.google.com/mail/images/2/openhand.cur), default !important;
   outline: 0;
+  z-index: 999;
 
   -webkit-transition: all 100ms ease-in-out;
   -moz-transition: all 100ms ease-in-out;
@@ -315,7 +320,7 @@
   resize: none;
 }
 
-.dot-counter {
+.fitzgerald-counter {
   float: right;
   font-size: 0.8em;
 }

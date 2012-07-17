@@ -35,7 +35,7 @@ var Fitzgerald = Fitzgerald || {};
 
       google.maps.event.addListener(self.panorama, 'pov_changed', function() {
         var pov = self.panorama.getPov();
-        F.trigger('povupdatebystreetview', pov);
+        F.trigger('povupdatebystreetview', pov.heading, pov.pitch, pov.zoom);
       });
 
       google.maps.event.addListener(self.panorama, 'position_changed', function() {
@@ -57,66 +57,45 @@ var Fitzgerald = Fitzgerald || {};
 
       var feedbackList = this.locationModel.get('feedback');
       if (!feedbackList || feedbackList.length === 0) {
-        this.setPov({
-          heading: 0,
-          pitch: 0,
-          zoom: 1
-        });
+        this.setPov(0, 0, 1);
       }
     },
     setPosition: _.debounce(function(lat, lng) {
       var latLng = new google.maps.LatLng(lat, lng);
       this.panorama.setPosition(latLng);
     }, 500),
-    setPov: function(config) {
-      this.panorama.setPov(config);
+    setPov: function(heading, pitch, zoom) {
+      this.panorama.setPov({
+        heading: heading,
+        pitch: pitch,
+        zoom: zoom
+      });
     }
   });
 
-
   F.FeedbackFormView = Backbone.View.extend({
-    events: {
-      'click #dot-add-feedback': 'showForm'
-    },
     initialize: function(){
       var self = this;
 
-      self.svp = StreetViewPlus({
-        target: '#dot-sv',
-        panoOptions: {
-          position: new google.maps.LatLng(0, 0),
-          visible:true,
-          addressControl: false,
-          clickToGo: false,
-          scrollwheel: false,
-          linksControl: false,
-          disableDoubleClickZoom: false,
-          zoomControlOptions: {
-            style: google.maps.ZoomControlStyle.SMALL
-          }
-        },
-        onSubmit: function(evt){
-          evt.preventDefault();
-          var feedback = {};
+      // Add hidden fields
+      self.$el.append(
+        '<input name="lat" type="hidden"></input>' +
+        '<input name="lng" type="hidden"></input>' +
+        '<input name="heading" type="hidden"></input>' +
+        '<input name="pitch" type="hidden"></input>' +
+        '<input name="zoom" type="hidden"></input>'
+      );
 
-          $.each($(this).serializeArray(), function(i, item) {
-            feedback[item.name] = item.value;
-          });
-
-          self.save(feedback);
-        },
-        survey: [
-          {
-            "title": "Show us where this intersection can be improved!",
-            "name": "desc",
-            "id": "dot-survey-desc",
-            "class": "dot-survey-item",
-            "type": "textarea"
-          }
-        ]
+      // Handle submit event
+      self.$el.submit(function() {
+        self.submit.apply(self, Array.prototype.slice.call(arguments));
       });
 
-      self.$dialog = $('.svp-survey').dialog({
+      $(document).delegate(self.options.showFormEl, 'click', function() {
+        self.showForm.apply(self, Array.prototype.slice.call(arguments));
+      });
+
+      self.$el.dialog({
         title: 'Add a Comment',
         autoOpen: false,
         modal: true,
@@ -125,10 +104,10 @@ var Fitzgerald = Fitzgerald || {};
         resizable: false,
         buttons: [
           {
-            id: 'dialog-save',
+            id: 'fitzgerald-dialog-save',
             text: "Save",
             click: function() {
-              self.svp.submit();
+              self.$el.submit();
               $(this).dialog("close");
             }
           }
@@ -145,37 +124,36 @@ var Fitzgerald = Fitzgerald || {};
     onLocationUpdate: function(model) {
       this.locationModel = model;
       this.render();
-
-      var feedbackList = this.locationModel.get('feedback');
-      if (!feedbackList || feedbackList.length === 0) {
-        this.setPov({
-          heading: 0,
-          pitch: 0,
-          zoom: 1
-        });
-      }
     },
     render: function(){
-      // Update the SV position
-      this.setPosition(this.locationModel.get('lat'), this.locationModel.get('lng'));
+      $('input[name="lat"]').val(this.locationModel.get('lat'));
+      $('input[name="lng"]').val(this.locationModel.get('lng'));
     },
-    setPosition: _.debounce(function(lat, lng) {
-      var latLng = new google.maps.LatLng(lat, lng);
-      this.svp.setPosition(latLng);
-    }, 500),
-    setPov: function(config) {
-      this.svp.setPov(
-        parseFloat(config.heading),
-        parseFloat(config.pitch),
-        parseInt(config.zoom, 10));
-    },
-    setZoom: function(z) {
-      this.svp.setZoom(parseInt(z, 10));
+    setPov: function(heading, pitch, zoom) {
+      this.$('input[name="heading"]').val(heading);
+      this.$('input[name="pitch"]').val(pitch);
+      this.$('input[name="zoom"]').val(zoom);
     },
     showForm: function() {
-      $('.dot-survey-item').val('');
+      this.$('.dot-survey-item').val('');
       this.updateCharCount();
-      this.$dialog.dialog('open');
+      this.$el.show().dialog('open');
+    },
+    submit: function(evt){
+      var feedback = {},
+          self = this;
+
+      evt.preventDefault();
+
+      $.each(self.$el.serializeArray(), function(i, item) {
+        feedback[item.name] = item.value;
+      });
+
+      feedback.heading = parseFloat(feedback.heading);
+      feedback.pitch = parseFloat(feedback.pitch);
+      feedback.zoom = parseInt(feedback.zoom, 10);
+
+      this.save(feedback);
     },
     save: function(feedback) {
       var self = this;
@@ -192,9 +170,9 @@ var Fitzgerald = Fitzgerald || {};
     },
     initCharCounter: function() {
       var self = this;
-      this.$saveBtn = $('#dialog-save');
-      this.$textarea = $('#dot-survey-desc');
-      this.$counter = $('<div class="dot-counter">counter</div>').insertAfter(this.$textarea);
+      this.$saveBtn = $('#fitzgerald-dialog-save');
+      this.$textarea = self.$('textarea');
+      this.$counter = $('<div class="fitzgerald-counter">counter</div>').insertAfter(this.$textarea);
 
       this.$textarea.keyup(function() { self.updateCharCount.call(self); });
       this.$textarea.change(function() { self.updateCharCount.call(self); });
@@ -310,7 +288,7 @@ var Fitzgerald = Fitzgerald || {};
       // Reset the top class
       this.$list.find('li[data-index=' + this.topCommentIndex + ']').addClass('dot-feedback-top');
       // Adjust Street View direction
-      F.trigger('povupdatebyview', feedbackList[index]);
+      F.trigger('povupdatebyview', feedbackList[index].heading, feedbackList[index].pitch, feedbackList[index].zoom);
       // Set the state (1 of 12) or whatever
       this.$nav.find('.dot-feedback-nav-state').html(feedbackLen-index+ ' of ' + feedbackLen);
     }
