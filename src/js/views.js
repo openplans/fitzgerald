@@ -64,13 +64,13 @@ var Fitzgerald = Fitzgerald || {};
       var latLng = new google.maps.LatLng(lat, lng);
       this.panorama.setPosition(latLng);
     }, 500),
-    setPov: function(heading, pitch, zoom) {
+    setPov: _.debounce(function(heading, pitch, zoom) {
       this.panorama.setPov({
         heading: heading,
         pitch: pitch,
         zoom: zoom
       });
-    }
+    }, 500)
   });
 
   F.FeedbackFormView = Backbone.View.extend({
