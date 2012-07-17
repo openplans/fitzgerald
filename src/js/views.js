@@ -1,15 +1,80 @@
 var Fitzgerald = Fitzgerald || {};
 
 (function(F, $) {
-  // F.View = Backbone.View.extend({
-  //   el: '',
-  //   initialize: function(){},
-  //   render: function(){}
-  // });
+  // Setup the namespace to trigger/bind events
+  _.extend(F, Backbone.Events);
 
-  F.AddFeedbackView = Backbone.View.extend({
-    el: 'body',
-    titleEl: '.dot-title',
+  F.LocationTitleView = Backbone.View.extend({
+    initialize: function(){
+      var self = this;
+
+      // Allow override
+      self.setTitle = self.options.setTitle || self.setTitle;
+
+      F.on('locationupdatebyslider', this.onLocationUpdate, this);
+      F.on('locationupdatebyrouter', this.onLocationUpdate, this);
+      F.on('locationupdatebygraph', this.onLocationUpdate, this);
+    },
+    onLocationUpdate: function(model) {
+      this.locationModel = model;
+      this.render();
+    },
+    render: function(){
+      this.setTitle(this.locationModel.get('name'));
+    },
+    setTitle: function(title) {
+      this.$el.html(title);
+    }
+  });
+
+  F.StreetviewView = Backbone.View.extend({
+    initialize: function(){
+      var self = this;
+
+      self.panorama = new google.maps.StreetViewPanorama(self.$el.get(0), self.options.panoOptions);
+
+      google.maps.event.addListener(self.panorama, 'pov_changed', function() {
+        var pov = self.panorama.getPov();
+        F.trigger('povupdatebystreetview', pov);
+      });
+
+      google.maps.event.addListener(self.panorama, 'position_changed', function() {
+        var latLng = self.panorama.getPosition();
+        F.trigger('locationupdatebystreetview', latLng.lat(), latLng.lng());
+      });
+
+      F.on('locationupdatebyslider', this.onLocationUpdate, this);
+      F.on('locationupdatebyrouter', this.onLocationUpdate, this);
+      F.on('locationupdatebygraph', this.onLocationUpdate, this);
+      F.on('povupdatebyview', this.setPov, this);
+    },
+    onLocationUpdate: function(model) {
+      this.locationModel = model;
+      this.render();
+    },
+    render: function() {
+      this.setPosition(this.locationModel.get('lat'), this.locationModel.get('lng'));
+
+      var feedbackList = this.locationModel.get('feedback');
+      if (!feedbackList || feedbackList.length === 0) {
+        this.setPov({
+          heading: 0,
+          pitch: 0,
+          zoom: 1
+        });
+      }
+    },
+    setPosition: _.debounce(function(lat, lng) {
+      var latLng = new google.maps.LatLng(lat, lng);
+      this.panorama.setPosition(latLng);
+    }, 500),
+    setPov: function(config) {
+      this.panorama.setPov(config);
+    }
+  });
+
+
+  F.FeedbackFormView = Backbone.View.extend({
     events: {
       'click #dot-add-feedback': 'showForm'
     },
@@ -74,8 +139,8 @@ var Fitzgerald = Fitzgerald || {};
 
       F.on('locationupdatebyslider', this.onLocationUpdate, this);
       F.on('locationupdatebyrouter', this.onLocationUpdate, this);
-      F.on('locationupdatebybargraph', this.onLocationUpdate, this);
-      F.on('povupdatebyview', this.setPov, this);
+      F.on('locationupdatebygraph', this.onLocationUpdate, this);
+      F.on('povupdatebystreetview', this.setPov, this);
     },
     onLocationUpdate: function(model) {
       this.locationModel = model;
@@ -93,7 +158,6 @@ var Fitzgerald = Fitzgerald || {};
     render: function(){
       // Update the SV position
       this.setPosition(this.locationModel.get('lat'), this.locationModel.get('lng'));
-      this.setTitle('Fourth Ave. &amp; ' + this.locationModel.get('name'));
     },
     setPosition: _.debounce(function(lat, lng) {
       var latLng = new google.maps.LatLng(lat, lng);
@@ -108,9 +172,6 @@ var Fitzgerald = Fitzgerald || {};
     setZoom: function(z) {
       this.svp.setZoom(parseInt(z, 10));
     },
-    setTitle: function(title) {
-      $(this.titleEl).html(title);
-    },
     showForm: function() {
       $('.dot-survey-item').val('');
       this.updateCharCount();
@@ -122,6 +183,7 @@ var Fitzgerald = Fitzgerald || {};
 
       new F.FeedbackModel().save(feedback, {
         success: function (model, response) {
+          // Copy the array
           var allFeedback = self.locationModel.get('feedback').slice();
           allFeedback.push(feedback);
           self.locationModel.set({'feedback': allFeedback});
@@ -163,18 +225,16 @@ var Fitzgerald = Fitzgerald || {};
   });
 
   F.FeedbackListView = Backbone.View.extend({
-    el: '.dot-feedback-container',
-    colors: ['yellow', 'blue', 'magenta'],
     initialize: function(){
       var self = this;
-      self.$list = self.$el.find('.dot-feedback');
-      self.$nav = self.$el.find('.dot-feedback-nav');
+      self.$list = self.$('.dot-feedback');
+      self.$nav = self.$('.dot-feedback-nav');
       self.topCommentIndex = 0;
 
       // Update the list if we move locations
       F.on('locationupdatebyslider', self.onLocationUpdate, self);
       F.on('locationupdatebyrouter', self.onLocationUpdate, self);
-      F.on('locationupdatebybargraph', self.onLocationUpdate, self);
+      F.on('locationupdatebygraph', self.onLocationUpdate, self);
       // Update the list if the model changes
       self.collection.bind('change', self.render, self);
 
@@ -220,7 +280,7 @@ var Fitzgerald = Fitzgerald || {};
       self.$list.empty();
 
       _.each(feedbackList, function(attrs, i) {
-        var color = self.colors[i % self.colors.length];
+        var color = self.options.colors[i % self.options.colors.length];
             charClass = '';
 
         if (attrs.desc.length < 50) {
@@ -257,7 +317,6 @@ var Fitzgerald = Fitzgerald || {};
   });
 
   F.FeedbackActivityView = Backbone.View.extend({
-    el: '.dot-feedback-activity',
     initialize: function(){
       this.collection.bind('reset', this.render, this);
       this.collection.bind('change', this.render, this);
@@ -281,17 +340,16 @@ var Fitzgerald = Fitzgerald || {};
       self.$el.bind('sparklineClick', function(evt) {
         var sparkline = evt.sparklines[0],
             region = sparkline.getCurrentRegionFields()[0];
-        F.trigger('locationupdatebybargraph', self.collection.at(region.offset));
+        F.trigger('locationupdatebygraph', self.collection.at(region.offset));
       });
     }
   });
 
   F.YouarehereTooltipView = Backbone.View.extend({
-    el: '.dot-tooltip-youarehere',
     initialize: function(){
       F.on('locationupdatebyslider', this.hide, this);
       F.on('locationupdatebyrouter', this.onLocationUpdate, this);
-      F.on('locationupdatebybargraph', this.hide, this);
+      F.on('locationupdatebygraph', this.hide, this);
     },
     onLocationUpdate: function(model) {
       this.locationModel = model;
@@ -307,11 +365,10 @@ var Fitzgerald = Fitzgerald || {};
   });
 
   F.TooltipView = Backbone.View.extend({
-    el: '.dot-tooltip-comments',
     initialize: function(){
       F.on('locationupdatebyslider', this.onLocationUpdate, this);
       F.on('locationupdatebyrouter', this.onLocationUpdate, this);
-      F.on('locationupdatebybargraph', this.onLocationUpdate, this);
+      F.on('locationupdatebygraph', this.onLocationUpdate, this);
       this.collection.bind('change', this.render, this);
     },
     onLocationUpdate: function(model) {
@@ -330,13 +387,12 @@ var Fitzgerald = Fitzgerald || {};
 
   // The map slider view
   F.NavigatorView = Backbone.View.extend({
-    el: '.dot-slider',
     initialize: function(){
       // Render thyself when the data shows up
       this.collection.bind('reset', this.render, this);
 
       F.on('locationupdatebyrouter', this.onLocationUpdate, this);
-      F.on('locationupdatebybargraph', this.onLocationUpdate, this);
+      F.on('locationupdatebygraph', this.onLocationUpdate, this);
     },
     onLocationUpdate: function(model) {
       this.locationModel = model;
@@ -364,7 +420,7 @@ var Fitzgerald = Fitzgerald || {};
       });
 
       // Change to the grabbed icon
-      $('.ui-slider-handle', self.el).mousedown(function(){
+      self.$('.ui-slider-handle').mousedown(function(){
         $(this).addClass('grabbed');
       });
 
@@ -381,30 +437,4 @@ var Fitzgerald = Fitzgerald || {};
       this.$el.slider('value', this.collection.indexOf(this.locationModel));
     }
   });
-
-  F.AppView = Backbone.View.extend({
-    initialize: function(){
-      // Setup the namespace to trigger/bind events
-      _.extend(F, Backbone.Events);
-
-      // Init the collection
-      this.collection = new F.LocationCollection();
-
-      // Init the views
-      this.mapSlider = new F.NavigatorView({ collection: this.collection });
-      this.tooltip = new F.TooltipView({ collection: this.collection });
-      this.youarehere = new F.YouarehereTooltipView({ collection: this.collection });
-      this.feedbackActivity = new F.FeedbackActivityView({ collection: this.collection });
-      this.feedbackList = new F.FeedbackListView({ collection: this.collection });
-      this.addFeedback = new F.AddFeedbackView({
-        collection: this.collection,
-        maxChars: 200
-      });
-
-      // Fetch the location records
-      this.collection.fetch();
-    }
-  });
-
-  new F.AppView();
 })(Fitzgerald, jQuery);

@@ -57,5 +57,65 @@
   <script src="js/models.js"></script>
   <script src="js/views.js"></script>
   <script src="js/test_data.js"></script>
+
+  <script>
+  Fitzgerald.AppView = Backbone.View.extend({
+    initialize: function(){
+      // Init the collection
+      this.collection = new Fitzgerald.LocationCollection();
+
+      // Init the views
+      this.mapSlider = new Fitzgerald.NavigatorView({
+        el: '.dot-slider', collection: this.collection
+      });
+      this.tooltip = new Fitzgerald.TooltipView({
+        el: '.dot-tooltip-comments', collection: this.collection
+      });
+      this.youarehere = new Fitzgerald.YouarehereTooltipView({
+        el: '.dot-tooltip-youarehere', collection: this.collection
+      });
+      this.feedbackActivity = new Fitzgerald.FeedbackActivityView({
+        el: '.dot-feedback-activity', collection: this.collection
+      });
+      this.feedbackList = new Fitzgerald.FeedbackListView({
+        el: '.dot-feedback-container',
+        colors: ['yellow', 'blue', 'magenta'],
+        collection: this.collection
+      });
+      this.streetview = new Fitzgerald.StreetviewView({
+        el: '#dot-sv',
+        collection: this.collection,
+        panoOptions: {
+          position: new google.maps.LatLng(0, 0),
+          visible:true,
+          addressControl: false,
+          clickToGo: false,
+          scrollwheel: false,
+          linksControl: false,
+          disableDoubleClickZoom: false,
+          zoomControlOptions: {
+            style: google.maps.ZoomControlStyle.SMALL
+          }
+        }
+      });
+      // this.addFeedback = new Fitzgerald.FeedbackFormView({
+      //   collection: this.collection, maxChars: 200
+      // });
+
+      this.locationTitle = new Fitzgerald.LocationTitleView({
+        el: '.dot-title',
+        setTitle: function(title) {
+          this.$el.html('Fourth Ave &amp; ' + title);
+        }
+      })
+
+      // Fetch the location records
+      this.collection.fetch();
+    }
+  });
+
+  new Fitzgerald.AppView();
+  </script>
+
 </body>
 </html>
