@@ -1,10 +1,5 @@
-/* Streetview Plus */
-.svp-streetview {
-  height:350px;
-}
-
-#svp-submit {
-  display: none;
+strong {
+  font-weight: bold;
 }
 
 /* Fitzgerald */
@@ -73,6 +68,10 @@
 
 .dot-survey-form {
   display: none;
+}
+
+.dot-survey-form-label {
+  font-size: 0.8em;
 }
 
 #dot-sv {
