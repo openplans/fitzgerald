@@ -192,12 +192,12 @@ var Fitzgerald = Fitzgerald || {};
       // Update counter
       self.$counter.html(available);
 
-      if (available >= 0) {
-        // Enable
-        self.$saveBtn.removeAttr('disabled');
-      } else {
+      if (available < 0 || available === self.options.maxChars) {
         // Disable
         self.$saveBtn.attr('disabled', 'disabled');
+      } else {
+        // Enable
+        self.$saveBtn.removeAttr('disabled');
       }
     }
   });
