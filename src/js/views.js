@@ -99,8 +99,7 @@ var Fitzgerald = Fitzgerald || {};
         title: 'Add a Comment',
         autoOpen: false,
         modal: true,
-        width:400,
-        height:247,
+        width: 400,
         resizable: false,
         buttons: [
           {

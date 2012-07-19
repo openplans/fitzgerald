@@ -320,7 +320,8 @@ strong {
 
 .fitzgerald-counter {
   float: right;
-  font-size: 0.8em;
+  font-size: 11px;
+  line-height: 11px;
 }
 
 /* Tooltip */
