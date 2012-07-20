@@ -54,17 +54,11 @@ var Fitzgerald = Fitzgerald || {};
     },
     render: function() {
       this.setPosition(this.locationModel.get('lat'), this.locationModel.get('lng'));
-      var feedbackList = this.locationModel.get('feedback');
-      if (!feedbackList || feedbackList.length === 0) {
-        this.setPov(0, 0, 1);
-      } else {
-        this.setPov(feedbackList[0].heading, feedbackList[0].pitch, feedbackList[0].zoom);
-      }
     },
-    setPosition: _.debounce(function(lat, lng) {
+    setPosition: function(lat, lng) {
       var latLng = new google.maps.LatLng(lat, lng);
       this.panorama.setPosition(latLng);
-    }, 100),
+    },
     setPov: function(heading, pitch, zoom) {
       this.panorama.setPov({
         heading: heading,
@@ -272,6 +266,7 @@ var Fitzgerald = Fitzgerald || {};
       });
 
       if (feedbackLen > 0) {
+        self.focusOnFeedback(feedbackList, feedbackLen-1);
         self.$list.show();
       } else {
         self.$list.hide();
