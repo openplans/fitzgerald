@@ -55,17 +55,17 @@ var Fitzgerald = Fitzgerald || {};
     render: function() {
       this.setPosition(this.locationModel.get('lat'), this.locationModel.get('lng'));
     },
-    setPosition: function(lat, lng) {
+    setPosition: _.debounce(function(lat, lng) {
       var latLng = new google.maps.LatLng(lat, lng);
       this.panorama.setPosition(latLng);
-    },
-    setPov: function(heading, pitch, zoom) {
+    }, 200),
+    setPov: _.debounce(function(heading, pitch, zoom) {
       this.panorama.setPov({
         heading: heading,
         pitch: pitch,
         zoom: zoom
       });
-    }
+    }, 300)
   });
 
   F.FeedbackFormView = Backbone.View.extend({
