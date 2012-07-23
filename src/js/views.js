@@ -54,6 +54,7 @@ var Fitzgerald = Fitzgerald || {};
     },
     render: function() {
       this.setPosition(this.locationModel.get('lat'), this.locationModel.get('lng'));
+      this.setPov(0, 0, 0);
     },
     setPosition: _.debounce(function(lat, lng) {
       var latLng = new google.maps.LatLng(lat, lng);
@@ -266,7 +267,7 @@ var Fitzgerald = Fitzgerald || {};
       });
 
       if (feedbackLen > 0) {
-        self.focusOnFeedback(feedbackList, feedbackLen-1);
+        self.focusOnFeedback(feedbackList, feedbackLen-1, true);
         self.$list.show();
       } else {
         self.$list.hide();
@@ -274,7 +275,7 @@ var Fitzgerald = Fitzgerald || {};
 
       if (feedbackLen > 1) self.$nav.show(); else self.$nav.hide();
     },
-    focusOnFeedback: function(feedbackList, index) {
+    focusOnFeedback: function(feedbackList, index, preventTrigger) {
       var feedbackLen = feedbackList.length;
       this.topCommentIndex = index;
       // Remove top class
@@ -282,7 +283,9 @@ var Fitzgerald = Fitzgerald || {};
       // Reset the top class
       this.$list.find('li[data-index=' + this.topCommentIndex + ']').addClass('dot-feedback-top');
       // Adjust Street View direction
-      F.trigger('povupdatebyview', feedbackList[index].heading, feedbackList[index].pitch, feedbackList[index].zoom);
+      if (!preventTrigger) {
+        F.trigger('povupdatebyview', feedbackList[index].heading, feedbackList[index].pitch, feedbackList[index].zoom);
+      }
       // Set the state (1 of 12) or whatever
       this.$nav.find('.dot-feedback-nav-state').html(feedbackLen-index+ ' of ' + feedbackLen);
     }
