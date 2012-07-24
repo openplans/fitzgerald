@@ -54,7 +54,7 @@ var Fitzgerald = Fitzgerald || {};
     },
     render: function() {
       this.setPosition(this.locationModel.get('lat'), this.locationModel.get('lng'));
-      this.setPov(0, 0, 0);
+      this.setPov(0, 0, 1);
     },
     setPosition: _.debounce(function(lat, lng) {
       var latLng = new google.maps.LatLng(lat, lng);
@@ -208,6 +208,9 @@ var Fitzgerald = Fitzgerald || {};
       F.on('locationupdatebyslider', self.onLocationUpdate, self);
       F.on('locationupdatebyrouter', self.onLocationUpdate, self);
       F.on('locationupdatebygraph', self.onLocationUpdate, self);
+      // Check if we should show the view link or not
+      F.on('povupdatebystreetview', self.onPovUpdate, self);
+
       // Update the list if the model changes
       self.collection.bind('change', self.render, self);
 
@@ -242,6 +245,16 @@ var Fitzgerald = Fitzgerald || {};
         self.focusOnFeedback(feedbackList, index);
       });
     },
+    onPovUpdate: function(heading, pitch, zoom) {
+      var f, feedbackList = this.locationModel.get('feedback');
+
+      if (feedbackList.length > 0) {
+        f = feedbackList[this.topCommentIndex];
+        if (f.heading !== heading || f.pitch !== pitch || f.zoom !== zoom) {
+          this.$('.dot-feedback-top .fitzgerald-view-comment-link').show();
+        }
+      }
+    },
     onLocationUpdate: function(model) {
       this.locationModel = model;
       this.render();
@@ -263,7 +276,8 @@ var Fitzgerald = Fitzgerald || {};
         }
 
         self.$list.append('<li data-index="'+i+'" class="'+ color +'"><span class="'+charClass+'">' +
-          '<a href="#">'+ attrs.desc + '</a></span></li>');
+          '<a href="#">'+ attrs.desc + '</a></span>' +
+          '<a href="#" class="fitzgerald-view-comment-link">click to view</a></li>');
       });
 
       if (feedbackLen > 0) {
@@ -288,6 +302,8 @@ var Fitzgerald = Fitzgerald || {};
       }
       // Set the state (1 of 12) or whatever
       this.$nav.find('.dot-feedback-nav-state').html(feedbackLen-index+ ' of ' + feedbackLen);
+
+      this.$('.dot-feedback-top .fitzgerald-view-comment-link').hide();
     }
   });
 
