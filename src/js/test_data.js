@@ -316,17 +316,26 @@ Fitzgerald.testData = [
 ];
 
 (function(F){
-  var collection;
-  if (F.Util.isLocalhost()) {
-    collection = new F.LocationCollection();
-    collection.fetch();
+  console.log('=== RUNNING IN TEST MODE ===');
 
-    if (collection.length === 0) {
-      F.testData.forEach(function(obj, i) {
-        collection.create(obj);
-        console.log(obj);
-      });
-      console.log(collection.toJSON());
-    }
+  // Setup the collection to support localStorage when running on localhost
+  F.LocationCollection = Backbone.Collection.extend({
+    localStorage: new Backbone.LocalStorage('fitzgerald-intersections')
+  });
+
+  // Define the Feeedback model
+  F.FeedbackModel = Backbone.Model.extend({
+    localStorage: new Backbone.LocalStorage('fitzgerald-feedback')
+  });
+
+  var collection = new F.LocationCollection();
+  collection.fetch();
+
+  if (collection.length === 0) {
+    F.testData.forEach(function(obj, i) {
+      collection.create(obj);
+      console.log(obj);
+    });
+    console.log(collection.toJSON());
   }
 })(Fitzgerald);
