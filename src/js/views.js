@@ -367,11 +367,13 @@ var Fitzgerald = Fitzgerald || {};
       this.render();
     },
     render: function(){
-      var percent = this.collection.indexOf(this.locationModel) / this.collection.length;
+      var percent = this.collection.indexOf(this.locationModel) / this.collection.length,
+          count = this.locationModel.get('feedback').length,
+          label = 'Comment' + ((count !== 1) ? 's' : '');
 
       this.$el
         .css('left', (percent*100) + '%')
-        .html('<strong>' + this.locationModel.get('feedback').length + '</strong> Comments')
+        .html('<strong>' + count + '</strong> ' + label)
         .show();
     }
   });
