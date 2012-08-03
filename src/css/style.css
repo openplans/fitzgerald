@@ -405,12 +405,16 @@ strong {
 }
 .dot-feedback-top .fitzgerald-view-comment-link {
   display: block;
-  width: 89px;
-  height: 45px;
-  background: transparent url(click-to-view.png) 0 0 no-repeat scroll;
+  width: 201px;
+  height: 121px;
+  background: transparent url(click-to-view.png) left bottom no-repeat scroll;
   text-align: left;
   text-indent: -9999px;
   position: absolute;
-  bottom: 0;
-  left: 0;
+  top: 50%;
+  left: 50%;
+  margin: -60px 0 0 -100px;
+}
+.dot-feedback-top .fitzgerald-view-comment-link:hover {
+  background-position: left top;
 }
