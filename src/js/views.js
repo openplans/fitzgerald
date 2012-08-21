@@ -391,7 +391,7 @@ var Fitzgerald = Fitzgerald || {};
       this.locationModel = model;
       this.setPosition();
 
-      if (this.router) {
+      if (this.router && this.locationModel) {
         this.router.navigate(this.locationModel.get('id').toString());
       }
     },
